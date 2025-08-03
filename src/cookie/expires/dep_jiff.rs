@@ -5,13 +5,13 @@ use jiff::{Timestamp, fmt::strtime::BrokenDownTime, tz::Offset};
 use crate::{Cookie, CookieBuilder, Error};
 
 use super::{
-    Expires, ExpiresInner,
+    Expires, Inner,
     formats::{FMT1, FMT2, FMT3, FMT4},
 };
 
 impl From<Timestamp> for Expires {
     fn from(value: Timestamp) -> Self {
-        Self(ExpiresInner::Expires {
+        Self(Inner::Exp {
             #[cfg(feature = "time")]
             time: None,
             #[cfg(feature = "chrono")]
@@ -23,21 +23,16 @@ impl From<Timestamp> for Expires {
 }
 
 impl Cookie {
-    pub fn expires_jiff(&self) -> Option<&Timestamp> {
+    pub fn expires_jiff(&self) -> Option<Timestamp> {
         match &self.expires {
-            Some(Expires(ExpiresInner::Expires { jiff, .. })) => jiff.as_ref(),
+            Some(Expires(Inner::Exp { jiff, .. })) => *jiff,
             _ => None,
         }
     }
+}
 
-    pub(crate) fn serialize_expires_jiff(&self, buf: &mut String) -> crate::Result<()> {
-        let Some(expires) = self.expires_jiff() else {
-            return Ok(());
-        };
-
-        write!(buf, "; Expires={}", expires.strftime(FMT1)).map_err(|_| Error::ExpiresFmt)?;
-        Ok(())
-    }
+pub(super) fn ser_expires(expires: Timestamp, buf: &mut String) -> crate::Result<()> {
+    write!(buf, "; Expires={}", expires.strftime(FMT1)).map_err(|_| Error::ExpiresFmt)
 }
 
 impl CookieBuilder {}
@@ -74,7 +69,7 @@ mod test_jiff {
         let expected = Cookie::build("foo", "bar").expires(expires).build();
 
         assert_eq!(
-            expected.serialize_strict().as_deref(),
+            expected.serialize().as_deref(),
             Ok("foo=bar; Expires=Wed, 21 Oct 2015 07:28:00 GMT")
         )
     }
@@ -95,10 +90,10 @@ mod test_jiff {
         for (cookie, day, month, year, hour, min, sec) in ABBREVIATED_YEARS.to_owned() {
             let expected = timestamp(day, month, year, hour, min, sec);
 
-            let found = Cookie::parse_strict(cookie).unwrap();
+            let found = Cookie::parse(cookie).unwrap();
             let expires = found.expires_jiff().unwrap();
 
-            assert_eq!(*expires, expected);
+            assert_eq!(expires, expected);
         }
     }
 
@@ -109,10 +104,10 @@ mod test_jiff {
         for (cookie, day, month, year, hour, min, sec) in ALTERNATIVE_FMTS.to_owned() {
             let expected = timestamp(day, month, year, hour, min, sec);
 
-            let found = Cookie::parse_strict(cookie).unwrap();
+            let found = Cookie::parse(cookie).unwrap();
             let expires = found.expires_jiff().unwrap();
 
-            assert_eq!(*expires, expected);
+            assert_eq!(expires, expected);
         }
     }
 }

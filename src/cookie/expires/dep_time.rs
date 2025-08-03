@@ -5,7 +5,7 @@ use time::{
 
 use crate::Cookie;
 
-use super::{Expires, ExpiresInner};
+use super::{Expires, Inner};
 
 static FMT1: &[FormatItem<'_>] = format_description!(
     "[weekday repr:short], [day] [month repr:short] [year padding:none] [hour]:[minute]:[second] GMT"
@@ -22,7 +22,9 @@ static FMT4: &[FormatItem<'_>] = format_description!(
 
 impl From<OffsetDateTime> for Expires {
     fn from(value: OffsetDateTime) -> Self {
-        Self(ExpiresInner::Expires {
+        // The expires hear cannot be above 9999 years but this is also the upper bound of
+        // `time::OffsetDateTime`.
+        Self(Inner::Exp {
             time: Some(value),
             #[cfg(feature = "chrono")]
             chrono: None,
@@ -33,32 +35,26 @@ impl From<OffsetDateTime> for Expires {
 }
 
 impl Cookie {
-    pub fn expires_time(&self) -> Option<&OffsetDateTime> {
+    pub fn expires_time(self) -> Option<OffsetDateTime> {
         match &self.expires {
-            Some(Expires(ExpiresInner::Expires { time, .. })) => time.as_ref(),
+            Some(Expires(Inner::Exp { time, .. })) => *time,
             _ => None,
         }
     }
+}
+pub(super) fn ser_expires(expires: OffsetDateTime, buf: &mut String) -> crate::Result<()> {
+    let expires = expires
+        .to_offset(UtcOffset::UTC)
+        .format(&FMT1)
+        .map_err(|_| crate::Error::ExpiresFmt)?;
 
-    pub(crate) fn serialize_expires_time(&self, buf: &mut String) -> crate::Result<bool> {
-        let Some(expires) = self.expires_time() else {
-            return Ok(false);
-        };
+    buf.push_str("; Expires=");
+    buf.push_str(&expires);
 
-        let expires = expires
-            .to_offset(UtcOffset::UTC)
-            .format(&FMT1)
-            .map_err(|_| crate::Error::ExpiresFmt)?;
-
-        buf.push_str("; Expires=");
-        buf.push_str(&expires);
-
-        Ok(true)
-    }
+    Ok(())
 }
 
 pub(crate) fn parse_date(s: &str, format: &impl Parsable) -> Result<OffsetDateTime, time::Error> {
-    // Parse. Handle "abbreviated" dates like Chromium. See cookie#162.
     let mut date = format.parse(s.as_bytes())?;
     if let Some(y) = date
         .year()
@@ -95,7 +91,7 @@ mod test_time {
         let expected = Cookie::build("foo", "bar").expires(expires).build();
 
         assert_eq!(
-            expected.serialize_strict().as_deref(),
+            expected.serialize().as_deref(),
             Ok("foo=bar; Expires=Wed, 21 Oct 2015 07:28:00 GMT")
         )
     }
@@ -121,10 +117,10 @@ mod test_time {
         for (cookie, day, month, year, hour, min, sec) in ABBREVIATED_YEARS.to_owned() {
             let expected = offset_datetime(day, month, year, hour, min, sec);
 
-            let found = Cookie::parse_strict(cookie).unwrap();
+            let found = Cookie::parse(cookie).unwrap();
             let expires = found.expires_time().unwrap();
 
-            assert_eq!(*expires, expected);
+            assert_eq!(expires, expected);
         }
     }
 
@@ -135,10 +131,10 @@ mod test_time {
         for (cookie, day, month, year, hour, min, sec) in ALTERNATIVE_FMTS.to_owned() {
             let expected = offset_datetime(day, month, year, hour, min, sec);
 
-            let found = Cookie::parse_strict(cookie).unwrap();
+            let found = Cookie::parse(cookie).unwrap();
             let expires = found.expires_time().unwrap();
 
-            assert_eq!(*expires, expected);
+            assert_eq!(expires, expected);
         }
     }
 }

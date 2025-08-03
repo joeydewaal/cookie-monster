@@ -1,14 +1,14 @@
 use crate::{Error, util::TinyStr};
 
-use super::{Cookie, options::CookieOptions, parse::invalid_cookie_value};
+use super::{Cookie, parse::invalid_cookie_value};
 
-pub fn parse_path(path: &mut str, source: *const u8, options: &CookieOptions) -> Option<TinyStr> {
+pub fn parse_path(path: &mut str, source: *const u8, is_unchecked: bool) -> Option<TinyStr> {
     // If the attribute-value is empty or if the first character of the
     //     attribute-value is not %x2F ("/"):
     //     Let cookie-path be the default-path.
     // Otherwise:
     //    Let cookie-path be the attribute-value.
-    if options.is_unchecked() {
+    if is_unchecked {
         return Some(TinyStr::index(path, source));
     }
 
@@ -34,26 +34,18 @@ pub fn valid_path(path: &str) -> bool {
 
 impl Cookie {
     #[inline]
-    pub(crate) fn serialize_path(
-        &self,
-        buf: &mut String,
-        opts: &CookieOptions,
-    ) -> crate::Result<()> {
+    pub(crate) fn serialize_path(&self, buf: &mut String, is_unchecked: bool) -> crate::Result<()> {
         let Some(path) = self.path() else {
             return Ok(());
         };
 
-        if opts.is_unchecked() {
+        if is_unchecked {
             write_path(buf, path);
             return Ok(());
         }
 
         if path.is_empty() {
-            if opts.is_strict() {
-                return Err(Error::InvalidAttribute);
-            } else {
-                return Ok(());
-            }
+            return Ok(());
         }
 
         if !path.starts_with('/') || invalid_cookie_value(path) {

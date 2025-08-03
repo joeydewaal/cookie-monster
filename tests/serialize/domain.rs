@@ -1,4 +1,4 @@
-use cookie_monster::{Cookie, Error};
+use cookie_monster::Cookie;
 
 mod util;
 
@@ -11,13 +11,13 @@ fn domain() {
 
     assert_eq_ser!(
         Cookie::build("foo", "bar").domain(".rust-lang.com").build(),
-        strict = Ok("foo=bar; Domain=rust-lang.com"),
+        serialize = Ok("foo=bar; Domain=rust-lang.com"),
         unchecked = "foo=bar; Domain=.rust-lang.com"
     );
 
     assert_eq_ser!(
         Cookie::build("foo", "bar").domain("").build(),
-        strict = Ok("foo=bar"),
+        serialize = Ok("foo=bar"),
         unchecked = "foo=bar; Domain="
     );
 
@@ -25,8 +25,7 @@ fn domain() {
         Cookie::build("foo", "bar")
             .domain("rust-lang\0.com")
             .build(),
-        strict = Err(&Error::InvalidAttribute),
-        relaxed = Ok("foo=bar"),
+        serialize = Ok("foo=bar"),
         unchecked = "foo=bar; Domain=rust-lang\0.com"
     );
 }

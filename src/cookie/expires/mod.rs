@@ -22,11 +22,11 @@ pub mod formats {
 }
 
 #[allow(unused)]
-pub struct Expires(ExpiresInner);
+pub struct Expires(Inner);
 
-pub(crate) enum ExpiresInner {
+pub(crate) enum Inner {
     Remove,
-    Expires {
+    Exp {
         #[cfg(feature = "time")]
         time: Option<time::OffsetDateTime>,
         #[cfg(feature = "chrono")]
@@ -38,12 +38,12 @@ pub(crate) enum ExpiresInner {
 
 impl Expires {
     pub fn in_the_past() -> Self {
-        Self(ExpiresInner::Remove)
+        Self(Inner::Remove)
     }
 }
 
 pub fn parse_expires(_value: &str) -> Option<Expires> {
-    Some(Expires(ExpiresInner::Expires {
+    Some(Expires(Inner::Exp {
         #[cfg(feature = "time")]
         time: dep_time::parse_expires_time(_value),
         #[cfg(feature = "chrono")]
@@ -55,29 +55,22 @@ pub fn parse_expires(_value: &str) -> Option<Expires> {
 
 impl Cookie {
     #[allow(clippy::ptr_arg)]
-    pub fn serialize_expire(&self, _buf: &mut String) -> crate::Result<()> {
-        #[cfg(feature = "time")]
-        {
-            if self.serialize_expires_time(_buf)? {
-                return Ok(());
+    pub fn serialize_expire(&self, buf: &mut String) -> crate::Result<()> {
+        match self.expires {
+            #[cfg(feature = "time")]
+            Some(Expires(Inner::Exp { time: Some(t), .. })) => dep_time::ser_expires(t, buf),
+            #[cfg(feature = "chrono")]
+            Some(Expires(Inner::Exp {
+                chrono: Some(c), ..
+            })) => dep_chrono::ser_expires(c, buf),
+            #[cfg(feature = "jiff")]
+            Some(Expires(Inner::Exp { jiff: Some(j), .. })) => dep_jiff::ser_expires(j, buf),
+            Some(Expires(Inner::Remove)) => {
+                buf.push_str("; Expires=Thu, 01 Jan 1970 00:00:00 GMT");
+                Ok(())
             }
+            _ => Ok(()),
         }
-
-        #[cfg(feature = "chrono")]
-        {
-            if self.serialize_expires_chrono(_buf)? {
-                return Ok(());
-            };
-        }
-
-        #[cfg(feature = "jiff")]
-        {
-            self.serialize_expires_jiff(_buf)?;
-            return Ok(());
-        }
-
-        #[allow(unreachable_code)]
-        Ok(())
     }
 }
 

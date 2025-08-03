@@ -8,7 +8,7 @@ pub struct BitFlags(u8);
 // 1 -> http_only
 // 2 -> partitioned
 // 3
-// 4
+// 4 (TODO: we can be more efficient here by only using 2 bits)
 // 5 -> 1 == Some(SameSite::Strict) | 0
 // 6 -> 1 == Some(SameSite::Lax)    | 0 -> None
 // 7 -> 1 == Some(SameSite::None)   | 0

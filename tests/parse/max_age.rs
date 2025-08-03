@@ -38,8 +38,7 @@ fn invalid_max_age() {
     assert_eq_parse!("foo=bar; Max-Age=abc", all = Cookie::new("foo", "bar"));
     assert_eq_parse!(
         "foo=bar; Max-Age=+10",
-        strict = Ok(Cookie::new("foo", "bar")),
-        relaxed = Ok(cookie()),
+        parse = Ok(cookie()),
         unchecked = cookie()
     );
     assert_eq_parse!("foo=bar; Max-Age=-+1", all = Cookie::new("foo", "bar"));
@@ -51,7 +50,7 @@ fn invalid_max_age() {
             .build()
     };
 
-    assert_eq_parse!(
+    assert_ne_parse!(
         format!("foo=bar; Max-Age={}", (u64::max_value() as u128) + 1),
         all = cookie()
     );

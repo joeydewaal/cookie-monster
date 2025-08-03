@@ -11,20 +11,20 @@ HTTP cookie parsing and cookie jar management. Supports signed and private
 """
 
 [features]
-percent-encode = ["percent-encoding"]
-time = []
-chrono = []
-jiff = []
+percent-encode = ["dep:percent-encoding"]
+time = ["dep:time"]
+chrono = ["dep:chrono"]
+jiff = ["dep:jiff"]
 
 
 [dependencies]
 # Encoding
 percent-encoding = { version = "2.3.1", optional = true }
 
-# Expiry
-time = { version = "0.3", default-features = false, features = ["std", "parsing", "formatting", "macros"] }
-chrono = { version = "0.4", default-features = false, features = ["std"] }
-jiff = { version = "0.2.15" }
+# Expires
+time = { version = "0.3",  features = ["std", "parsing", "formatting", "macros"], default-features = false, optional = true }
+chrono = { version = "0.4", default-features = false, features = ["std"], optional = true }
+jiff = { version = "0.2.15", optional = true }
 
 
 # Parse cookie tests

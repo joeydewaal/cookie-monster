@@ -35,39 +35,39 @@ fn name_value() {
 fn invalid_name_value() {
     assert_eq_parse!(
         "foobar",
-        strict = Err(Error::EqualsNotFound),
+        parse = Err(Error::EqualsNotFound),
         unchecked = Cookie::new("", "")
     );
     assert_eq_parse!(
         "foo&bar",
-        strict = Err(Error::EqualsNotFound),
+        parse = Err(Error::EqualsNotFound),
         unchecked = Cookie::new("", "")
     );
 
     assert_eq_parse!(
         "",
-        strict = Err(Error::EqualsNotFound),
+        parse = Err(Error::EqualsNotFound),
         unchecked = Cookie::new("", "")
     );
 
     assert_eq_parse!(
         "=bar",
-        strict = Err(Error::NameEmpty),
+        parse = Err(Error::NameEmpty),
         unchecked = Cookie::new("", "bar")
     );
     assert_eq_parse!(
         " =bar",
-        strict = Err(Error::NameEmpty),
+        parse = Err(Error::NameEmpty),
         unchecked = Cookie::new("", "bar")
     );
     assert_eq_parse!(
         "foo=\0",
-        strict = Err(Error::InvalidValue),
+        parse = Err(Error::InvalidValue),
         unchecked = Cookie::new("foo", "\0")
     );
     assert_eq_parse!(
         "foo=test\0test",
-        strict = Err(Error::InvalidValue),
+        parse = Err(Error::InvalidValue),
         unchecked = Cookie::new("foo", "test\0test")
     );
 }
@@ -78,58 +78,58 @@ fn name_value_brackets_spaces() {
 
     assert_eq_parse!(
         "foo=\"  bar  \"",
-        strict = Err(Error::InvalidValue),
+        parse = Err(Error::InvalidValue),
         unchecked = Cookie::new("foo", "  bar  ")
     );
 
     assert_eq_parse!(
         "foo=\"",
-        strict = Err(Error::InvalidValue),
+        parse = Err(Error::InvalidValue),
         unchecked = Cookie::new("foo", "\"")
     );
     assert_eq_parse!(
         "foo=\"\"bar\"\"",
-        strict = Err(Error::InvalidValue),
+        parse = Err(Error::InvalidValue),
         unchecked = Cookie::new("foo", "\"bar\"")
     );
     assert_eq_parse!(
         "foo=\"bar",
-        strict = Err(Error::InvalidValue),
+        parse = Err(Error::InvalidValue),
         unchecked = Cookie::new("foo", "\"bar")
     );
     assert_eq_parse!(
         "foo=\"\"bar",
-        strict = Err(Error::InvalidValue),
+        parse = Err(Error::InvalidValue),
         unchecked = Cookie::new("foo", "\"\"bar")
     );
     assert_eq_parse!(
         "foo=bar\"",
-        strict = Err(Error::InvalidValue),
+        parse = Err(Error::InvalidValue),
         unchecked = Cookie::new("foo", "bar\"")
     );
     assert_eq_parse!(
         "foo=bar\"\"",
-        strict = Err(Error::InvalidValue),
+        parse = Err(Error::InvalidValue),
         unchecked = Cookie::new("foo", "bar\"\"")
     );
     assert_eq_parse!(
         "foo=\"bar\"\"",
-        strict = Err(Error::InvalidValue),
+        parse = Err(Error::InvalidValue),
         unchecked = Cookie::new("foo", "bar\"")
     );
     assert_eq_parse!(
         "foo=\"  bar\"\"",
-        strict = Err(Error::InvalidValue),
+        parse = Err(Error::InvalidValue),
         unchecked = Cookie::new("foo", "  bar\"")
     );
     assert_eq_parse!(
         "foo=\"  bar\"  \"  ",
-        strict = Err(Error::InvalidValue),
+        parse = Err(Error::InvalidValue),
         unchecked = Cookie::new("foo", "  bar\"  ")
     );
     assert_eq_parse!(
         " foo=\"bar   \" ",
-        strict = Err(Error::InvalidValue),
+        parse = Err(Error::InvalidValue),
         unchecked = Cookie::new("foo", "bar   ")
     );
 }

@@ -34,6 +34,7 @@ impl CookieBuilder {
         self
     }
 
+    #[inline]
     pub fn expires(mut self, expiration: impl Into<Expires>) -> Self {
         self.0.set_expires(expiration.into());
         self

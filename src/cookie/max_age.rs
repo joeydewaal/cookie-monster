@@ -1,8 +1,4 @@
-use super::options::CookieOptions;
-
-pub fn parse_max_age(mut attribute: &str, options: &CookieOptions) -> Option<u64> {
-    let is_strict = options.is_strict();
-
+pub fn parse_max_age(mut attribute: &str) -> Option<u64> {
     if attribute.is_empty() {
         return None;
     }
@@ -14,7 +10,7 @@ pub fn parse_max_age(mut attribute: &str, options: &CookieOptions) -> Option<u64
             attribute = &attribute[1..];
             true
         }
-        b'+' if !is_strict => {
+        b'+' => {
             attribute = &attribute[1..];
             false
         }

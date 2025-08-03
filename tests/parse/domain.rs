@@ -35,12 +35,12 @@ fn domain() {
 fn invalid_domain() {
     assert_eq_parse!(
         "foo=bar; Domain=www.foo\0.com",
-        strict = Ok(Cookie::new("foo", "bar")),
+        parse = Ok(Cookie::new("foo", "bar")),
         unchecked = Cookie::build("foo", "bar").domain("www.foo\0.com").build()
     );
     assert_eq_parse!(
         "foo=bar; Domain=",
-        strict = Ok(Cookie::new("foo", "bar")),
+        parse = Ok(Cookie::new("foo", "bar")),
         unchecked = Cookie::build("foo", "bar").domain("").build()
     );
 }

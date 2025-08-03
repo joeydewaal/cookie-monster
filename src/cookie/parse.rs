@@ -3,29 +3,7 @@ use crate::{Cookie, error::Error, util::TinyStr};
 use super::expires;
 use super::{domain::parse_domain, max_age::parse_max_age, path::parse_path};
 
-use super::options::CookieOptions;
-
 impl Cookie {
-    /// Follows RFC 6265 thoroughly, this means:
-    /// Characters that are not allowed in the name, value or attributes (e.g. ascii control
-    /// characters and spaces...) return an error.
-    ///
-    /// *Expires*
-    ///
-    /// *Max-Age*
-    /// if a '+' is found in the value the attribute value is skipped
-    ///
-    /// *Domain*
-    /// An empty domain is ignored.
-    ///
-    /// *Path*
-    /// An empty path is ignored.
-    ///
-    /// *Secure,HttpOnly,Partitioned*
-    pub fn parse_strict(string: impl Into<Box<str>>) -> Result<Cookie, Error> {
-        Self::parse_inner(string.into(), CookieOptions::strict())
-    }
-
     /// Follows RFC 6265  but less strict, this means:
     /// Characters that are not allowed in the name, value(e.g. ascii control characters and
     /// spaces...) return an error. But invalid characters in attribute name/values are ignored.
@@ -42,8 +20,8 @@ impl Cookie {
     /// An empty path is ignored.
     ///
     /// *Secure,HttpOnly,Partitioned*
-    pub fn parse_relaxed(string: impl Into<Box<str>>) -> Result<Cookie, Error> {
-        Self::parse_inner(string.into(), CookieOptions::relaxed())
+    pub fn parse(string: impl Into<Box<str>>) -> Result<Cookie, Error> {
+        Self::parse_inner(string.into(), false)
     }
     /// Mostly follows RFC 6265  but does not check for invalid characters:
     /// Characters that are not allowed in the name, value(e.g. ascii control characters and
@@ -63,13 +41,10 @@ impl Cookie {
     ///
     /// *Secure,HttpOnly,Partitioned*
     pub fn parse_unchecked(string: impl Into<Box<str>>) -> Cookie {
-        Self::parse_inner(string.into(), CookieOptions::unchecked())
-            .expect("unchecked should never panic")
+        Self::parse_inner(string.into(), true).expect("unchecked should never panic")
     }
 
-    fn parse_inner(mut string: Box<str>, options: CookieOptions) -> Result<Cookie, Error> {
-        let is_unchecked = options.is_unchecked();
-
+    fn parse_inner(mut string: Box<str>, is_unchecked: bool) -> Result<Cookie, Error> {
         let mut parts = SplitMut::new(&mut string);
 
         let name_value = parts.next().expect("First split always returns something");
@@ -110,7 +85,7 @@ impl Cookie {
 
         let mut cookie = Cookie::new_inner(name, value);
 
-        parse_attributes(&mut cookie, parts, options)?;
+        parse_attributes(&mut cookie, parts, is_unchecked)?;
         cookie.raw_value = Some(string);
         Ok(cookie)
     }
@@ -119,10 +94,8 @@ impl Cookie {
 fn parse_attributes(
     cookie: &mut Cookie,
     mut parts: SplitMut,
-    options: CookieOptions,
+    is_unchecked: bool,
 ) -> crate::Result<()> {
-    let is_strict = options.is_strict();
-
     // 1.  If the unparsed-attributes string is empty, skip the rest of
     // these steps.
     // 2.  Discard the first character of the unparsed-attributes (which
@@ -160,10 +133,6 @@ fn parse_attributes(
         name = trim_mut(name);
         name.make_ascii_lowercase();
 
-        if is_strict && invalid_cookie_value(name) {
-            return Err(Error::InvalidAttribute);
-        }
-
         // 6.  Process the attribute-name and attribute-value according to the
         //     requirements in the following subsections.  (Notice that
         //     attributes with unrecognized attribute-names are ignored.)
@@ -171,14 +140,10 @@ fn parse_attributes(
             ("secure", None) => cookie.set_secure(true),
             ("httponly", None) => cookie.set_http_only(true),
             ("partitioned", None) => cookie.set_partitioned(true),
-            ("max-age", Some(value)) => cookie.max_age = parse_max_age(value, &options),
-            ("domain", Some(value)) => cookie.domain = parse_domain(value, parts.ptr, &options),
-            ("path", Some(value)) => cookie.path = parse_path(value, parts.ptr, &options),
+            ("max-age", Some(value)) => cookie.max_age = parse_max_age(value),
+            ("domain", Some(value)) => cookie.domain = parse_domain(value, parts.ptr, is_unchecked),
+            ("path", Some(value)) => cookie.path = parse_path(value, parts.ptr, is_unchecked),
             ("expires", Some(value)) => cookie.expires = expires::parse_expires(value),
-            ("", Some(_)) if is_strict => {
-                // invalid attributes return an error (foo=bar; =10)
-                return Err(Error::InvalidAttribute);
-            }
             _ => continue,
         }
     }

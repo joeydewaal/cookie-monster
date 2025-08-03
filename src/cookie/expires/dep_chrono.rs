@@ -1,12 +1,12 @@
 use chrono::{
-    DateTime, Utc,
+    DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc,
     format::{Parsed, StrftimeItems},
 };
 
 use crate::{Cookie, Error};
 
 use super::{
-    Expires, ExpiresInner,
+    Expires, Inner,
     formats::{FMT1, FMT2, FMT3, FMT4},
 };
 
@@ -17,12 +17,18 @@ static PARTS: [StrftimeItems<'static>; 4] = [
     StrftimeItems::new(FMT4),
 ];
 
+static MAX_EXPIRES: DateTime<Utc> = NaiveDateTime::new(
+    NaiveDate::from_ymd_opt(9999, 12, 31).unwrap(),
+    NaiveTime::from_hms_micro_opt(23, 59, 59, 59).unwrap(),
+)
+.and_utc();
+
 impl From<DateTime<Utc>> for Expires {
     fn from(value: DateTime<Utc>) -> Self {
-        Self(ExpiresInner::Expires {
+        Self(Inner::Exp {
             #[cfg(feature = "time")]
             time: None,
-            chrono: Some(value),
+            chrono: Some(std::cmp::min(value, MAX_EXPIRES)),
             #[cfg(feature = "jiff")]
             jiff: None,
         })
@@ -30,27 +36,20 @@ impl From<DateTime<Utc>> for Expires {
 }
 
 impl Cookie {
-    pub fn expires_chrono(&self) -> Option<&DateTime<Utc>> {
+    pub fn expires_chrono(&self) -> Option<DateTime<Utc>> {
         match &self.expires {
-            Some(Expires(ExpiresInner::Expires { chrono, .. })) => chrono.as_ref(),
+            Some(Expires(Inner::Exp { chrono, .. })) => *chrono,
             _ => None,
         }
     }
+}
+pub(super) fn ser_expires(expires: DateTime<Utc>, buf: &mut String) -> crate::Result<()> {
+    buf.push_str("; Expires=");
 
-    pub(crate) fn serialize_expires_chrono(&self, buf: &mut String) -> crate::Result<bool> {
-        let Some(expires) = self.expires_chrono() else {
-            return Ok(false);
-        };
-
-        let utc_expires = expires.to_utc();
-
-        buf.push_str("; Expires=");
-        utc_expires
-            .format(FMT1)
-            .write_to(buf)
-            .map_err(|_| Error::ExpiresFmt)?;
-        Ok(true)
-    }
+    expires
+        .format(FMT1)
+        .write_to(buf)
+        .map_err(|_| Error::ExpiresFmt)
 }
 
 pub fn parse_expires(value: &str) -> Option<DateTime<Utc>> {
@@ -67,7 +66,8 @@ pub fn parse_expires(value: &str) -> Option<DateTime<Utc>> {
 
                 let _ = parsed.set_year(year as i64 + offset).ok();
             }
-            return parsed.to_datetime_with_timezone(&chrono::Utc).ok();
+            let expires = parsed.to_datetime_with_timezone(&chrono::Utc).ok()?;
+            return Some(std::cmp::min(expires, MAX_EXPIRES));
         }
     }
     None
@@ -75,8 +75,8 @@ pub fn parse_expires(value: &str) -> Option<DateTime<Utc>> {
 
 #[cfg(test)]
 mod test_chrono {
-    use crate::Cookie;
-    use chrono::{TimeZone, Utc};
+    use crate::{Cookie, cookie::expires::dep_chrono::MAX_EXPIRES};
+    use chrono::{Duration, TimeZone, Utc};
 
     #[test]
     fn parse() {
@@ -85,7 +85,7 @@ mod test_chrono {
         let expected = Cookie::build("foo", "bar").expires(expires).build();
 
         assert_eq!(
-            expected.serialize_strict().as_deref(),
+            expected.serialize().as_deref(),
             Ok("foo=bar; Expires=Wed, 21 Oct 2015 07:28:00 GMT")
         )
     }
@@ -99,10 +99,10 @@ mod test_chrono {
                 .with_ymd_and_hms(year, month, day, hour, min, sec)
                 .unwrap();
 
-            let found = Cookie::parse_strict(cookie).unwrap();
+            let found = Cookie::parse(cookie).unwrap();
             let expires = found.expires_chrono().unwrap();
 
-            assert_eq!(*expires, expected);
+            assert_eq!(expires, expected);
         }
     }
 
@@ -115,10 +115,25 @@ mod test_chrono {
                 .with_ymd_and_hms(year, month, day, hour, min, sec)
                 .unwrap();
 
-            let found = Cookie::parse_strict(cookie).unwrap();
+            let found = Cookie::parse(cookie).unwrap();
             let expires = found.expires_chrono().unwrap();
 
-            assert_eq!(*expires, expected);
+            assert_eq!(expires, expected);
         }
+    }
+
+    #[test]
+    fn large_date() {
+        assert_eq!(
+            Cookie::build("foo", "bar")
+                .expires(MAX_EXPIRES + Duration::weeks(1))
+                .build()
+                .serialize()
+                .as_deref(),
+            Ok("foo=bar; Expires=Fri, 31 Dec 9999 23:59:59 GMT")
+        );
+
+        let cookie = Cookie::parse("foo=bar; Expires=Fri, 07 Jan +10000 23:59:59 GMT").unwrap();
+        assert_eq!(cookie.expires_chrono(), Some(MAX_EXPIRES));
     }
 }

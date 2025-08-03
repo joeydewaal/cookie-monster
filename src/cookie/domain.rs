@@ -1,15 +1,11 @@
-use crate::{Error, util::TinyStr};
+use crate::util::TinyStr;
 
-use super::{
-    Cookie,
-    options::{CookieOptions, Strictness},
-    parse::invalid_cookie_value,
-};
+use super::{Cookie, parse::invalid_cookie_value};
 
-pub fn parse_domain(domain: &mut str, src: *const u8, opts: &CookieOptions) -> Option<TinyStr> {
+pub fn parse_domain(domain: &mut str, src: *const u8, is_unchecked: bool) -> Option<TinyStr> {
     domain.make_ascii_lowercase();
 
-    if !opts.is_unchecked() && invalid_cookie_value(domain) {
+    if !is_unchecked && invalid_cookie_value(domain) {
         return None;
     }
 
@@ -17,7 +13,7 @@ pub fn parse_domain(domain: &mut str, src: *const u8, opts: &CookieOptions) -> O
     // If the attribute-value is empty, the behavior is undefined.  However,
     // the user agent SHOULD ignore the cookie-av entirely.
     if domain.is_empty() {
-        if opts.is_unchecked() {
+        if is_unchecked {
             return Some(TinyStr::empty());
         } else {
             return None;
@@ -46,13 +42,13 @@ impl Cookie {
     pub(crate) fn serialize_domain(
         &self,
         buf: &mut String,
-        opts: &CookieOptions,
+        is_unchecked: bool,
     ) -> crate::Result<()> {
         let Some(mut domain) = self.domain() else {
             return Ok(());
         };
 
-        if opts.is_unchecked() {
+        if is_unchecked {
             write_domain(buf, domain);
             return Ok(());
         }
@@ -66,19 +62,11 @@ impl Cookie {
             domain = &domain[1..];
         }
 
-        match opts.strictness() {
-            Strictness::Strict if invalid_cookie_value(domain) => {
-                return Err(Error::InvalidAttribute);
-            }
-            Strictness::Relaxed if invalid_cookie_value(domain) => {
-                // We just skip the value on an invalid domain, this only de
-                return Ok(());
-            }
-            _ => {}
+        if invalid_cookie_value(domain) {
+            return Ok(());
         }
 
         write_domain(buf, domain);
-
         Ok(())
     }
 }

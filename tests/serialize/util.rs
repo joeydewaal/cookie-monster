@@ -2,19 +2,13 @@
 macro_rules! assert_eq_ser {
     (
         $cookie:expr,
-        strict = $strict:expr,
-        relaxed = $relaxed:expr,
+        serialize = $relaxed:expr,
         unchecked = $unchecked:expr
     ) => {
         assert_eq!(
-            $cookie.serialize_strict().as_deref(),
-            $strict,
-            "strict went wrong"
-        );
-        assert_eq!(
-            $cookie.serialize_relaxed().as_deref(),
+            $cookie.serialize().as_deref(),
             $relaxed,
-            "relaxed went wrong"
+            "serialize went wrong"
         );
         assert_eq!(
             $cookie.serialize_unchecked(),
@@ -22,24 +16,7 @@ macro_rules! assert_eq_ser {
             "unchecked went wrong"
         );
     };
-    (
-        $cookie:expr,
-        strict = $strict:expr,
-        unchecked = $unchecked:expr
-    ) => {
-        assert_eq_ser!(
-            $cookie,
-            strict = $strict,
-            relaxed = $strict,
-            unchecked = $unchecked
-        );
-    };
     ($cookie:expr, all = $all:expr) => {
-        assert_eq_ser!(
-            $cookie,
-            strict = Ok($all),
-            relaxed = Ok($all),
-            unchecked = $all
-        )
+        assert_eq_ser!($cookie, serialize = Ok($all), unchecked = $all)
     };
 }

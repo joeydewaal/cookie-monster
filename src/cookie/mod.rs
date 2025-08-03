@@ -9,7 +9,6 @@ mod domain;
 mod expires;
 mod flags;
 mod max_age;
-pub(crate) mod options;
 mod parse;
 mod path;
 mod same_site;
@@ -194,52 +193,9 @@ impl Cookie {
         self.flags.same_site()
     }
 
+    #[inline]
     pub fn set_same_site<S: Into<Option<SameSite>>>(&mut self, same_site: S) {
         self.flags.set_same_site(same_site.into());
-    }
-
-    fn write_args(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.http_only() {
-            write!(f, "; HttpOnly")?;
-        }
-
-        // if let Some(same_site) = self.same_site() {
-        //     write!(f, "; SameSite={}", same_site)?;
-        // }
-
-        if self.partitioned() {
-            write!(f, "; Partitioned")?;
-        }
-
-        if self.secure()
-        // || self.partitioned() == Some(true)
-        // || self.secure().is_none() && self.same_site() == Some(SameSite::None)
-        {
-            write!(f, "; Secure")?;
-        }
-
-        if let Some(path) = self.path() {
-            write!(f, "; Path={path}")?;
-        }
-
-        if let Some(domain) = self.domain() {
-            write!(f, "; Domain={domain}")?;
-        }
-
-        // if let Some(max_age) = self.max_age() {
-        //     write!(f, "; Max-Age={}", max_age.whole_seconds())?;
-        // }
-
-        // if let Some(time) = self.expires_datetime() {
-        //     let time = time.to_offset(UtcOffset::UTC);
-        //     write!(
-        //         f,
-        //         "; Expires={}",
-        //         time.format(&crate::parse::FMT1).map_err(|_| fmt::Error)?
-        //     )?;
-        // }
-
-        Ok(())
     }
 
     #[doc(hidden)]
@@ -250,23 +206,34 @@ impl Cookie {
 
 impl fmt::Display for Cookie {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}={}", self.name(), self.value())?;
-        self.write_args(f)
+        write!(f, "{}", self.serialize_unchecked())
     }
 }
 
 impl Debug for Cookie {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Cookie")
+        let mut debug = f.debug_struct("Cookie");
+
+        debug
             .field("name", &self.name())
             .field("value", &self.value())
-            // .field("max_age", &self.max_age())
+            .field("max_age", &self.max_age())
             .field("domain", &self.domain())
             .field("path", &self.path())
             .field("secure", &self.secure())
             .field("http_only", &self.http_only())
-            .field("partitioned", &self.partitioned())
-            .finish()
+            .field("partitioned", &self.partitioned());
+
+        // #[cfg(feature = "time")]
+        // let debug = debug.field("expires (time)", self.expires_time());
+
+        #[cfg(feature = "chrono")]
+        let debug = debug.field("expires (chrono)", &self.expires_chrono());
+
+        #[cfg(feature = "jiff")]
+        let debug = debug.field("expires (jiff)", &self.expires_jiff());
+
+        debug.finish()
     }
 }
 
@@ -277,10 +244,12 @@ impl PartialEq<Cookie> for Cookie {
             || self.secure() != other.secure()
             || self.http_only() != other.http_only()
             || self.partitioned() != other.partitioned()
-        // TODO: || self.max_age() != other.max_age()
+            || self.max_age() != other.max_age()
         {
             return false;
         }
+
+        // TODO: add support for expires here
 
         if !opt_str_eq(self.domain(), other.domain()) {
             return false;
@@ -304,6 +273,8 @@ fn opt_str_eq(left: Option<&str>, right: Option<&str>) -> bool {
 
 #[cfg(test)]
 mod tests {
+    use std::time::Duration;
+
     use crate::Cookie;
 
     #[test]
@@ -314,8 +285,8 @@ mod tests {
         let cookie = Cookie::build("foo", "bar").http_only();
         assert_eq!(&cookie.to_string(), "foo=bar; HttpOnly");
 
-        // let cookie = Cookie::build("foo", "bar").max_age(Duration::from_secs(10));
-        // assert_eq!(&cookie.to_string(), "foo=bar; Max-Age=10");
+        let cookie = Cookie::build("foo", "bar").max_age(Duration::from_secs(10));
+        assert_eq!(&cookie.to_string(), "foo=bar; Max-Age=10");
 
         let cookie = Cookie::build("foo", "bar").secure();
         assert_eq!(&cookie.to_string(), "foo=bar; Secure");
@@ -326,19 +297,11 @@ mod tests {
         let cookie = Cookie::build("foo", "bar").domain("www.rust-lang.org");
         assert_eq!(&cookie.to_string(), "foo=bar; Domain=www.rust-lang.org");
 
-        // let cookie = Cookie::build("foo", "bar").domain(".rust-lang.org");
-        // assert_eq!(&cookie.to_string(), "foo=bar; Domain=rust-lang.org");
+        let cookie = Cookie::build("foo", "bar").domain(".rust-lang.org");
+        assert_eq!(&cookie.to_string(), "foo=bar; Domain=.rust-lang.org");
 
         let cookie = Cookie::build("foo", "bar").domain("rust-lang.org");
         assert_eq!(&cookie.to_string(), "foo=bar; Domain=rust-lang.org");
-
-        // let time_str = "Wed, 21 Oct 2015 07:28:00 GMT";
-        // let expires = parse_date(time_str, &crate::parse::FMT1).unwrap();
-        // let cookie = Cookie::build(("foo", "bar")).expires(expires);
-        // assert_eq!(
-        //     &cookie.to_string(),
-        //     "foo=bar; Expires=Wed, 21 Oct 2015 07:28:00 GMT"
-        // );
 
         // let cookie = Cookie::build(("foo", "bar")).same_site(SameSite::Strict);
         // assert_eq!(&cookie.to_string(), "foo=bar; SameSite=Strict");

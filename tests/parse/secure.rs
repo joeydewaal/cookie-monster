@@ -1,4 +1,4 @@
-use cookie_monster::{Cookie, Error};
+use cookie_monster::Cookie;
 
 mod util;
 
@@ -22,13 +22,12 @@ fn secure() {
 fn invalid_secure() {
     assert_eq_parse!(
         "foo=bar; Sekure",
-        strict = Ok(Cookie::new("foo", "bar")),
+        parse = Ok(Cookie::new("foo", "bar")),
         unchecked = Cookie::new("foo", "bar")
     );
     assert_eq_parse!(
         "foo=bar; Secure\0",
-        strict = Err(Error::InvalidAttribute),
-        relaxed = Ok(Cookie::new("foo", "bar")),
+        parse = Ok(Cookie::new("foo", "bar")),
         unchecked = Cookie::new("foo", "bar")
     );
 }
