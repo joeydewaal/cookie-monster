@@ -12,17 +12,16 @@ pub mod dep_jiff;
 #[cfg(any(feature = "chrono", feature = "jiff"))]
 pub mod formats {
     // Sun, 06 Nov 1994 08:49:37 GMT (RFC)
-    pub static FMT1: &'static str = "%a, %d %b %Y %H:%M:%S GMT";
+    pub static FMT1: &str = "%a, %d %b %Y %H:%M:%S GMT";
     // Sunday, 06-Nov-94 08:49:37 GMT (RFC)
-    pub static FMT2: &'static str = "%A, %d-%b-%y %H:%M:%S GMT";
+    pub static FMT2: &str = "%A, %d-%b-%y %H:%M:%S GMT";
     // Sun Nov  6 08:49:37 1994 (RFC)
-    pub static FMT3: &'static str = "%a %b %e %H:%M:%S %Y";
-    // Thu 10-Sep-20 20:00:00 GMT
-    pub static FMT4: &'static str = "%a, %d-%b-%y %H:%M:%S GMT";
-    // Thu 10-Sep-2069 20:00:00 GMT
-    pub static FMT5: &'static str = "%a, %d-%b-%Y %H:%M:%S GMT";
+    pub static FMT3: &str = "%a %b %e %H:%M:%S %Y";
+    // Thu, 10-Sep-2069 20:00:00 GMT
+    pub static FMT4: &str = "%a, %d-%b-%Y %H:%M:%S GMT";
 }
 
+#[allow(unused)]
 pub struct Expires(ExpiresInner);
 
 pub(crate) enum ExpiresInner {
@@ -43,36 +42,37 @@ impl Expires {
     }
 }
 
-pub fn parse_expires(value: &str) -> Option<Expires> {
+pub fn parse_expires(_value: &str) -> Option<Expires> {
     Some(Expires(ExpiresInner::Expires {
         #[cfg(feature = "time")]
-        time: dep_time::parse_expires_time(value),
+        time: dep_time::parse_expires_time(_value),
         #[cfg(feature = "chrono")]
-        chrono: dep_chrono::parse_expires(value),
+        chrono: dep_chrono::parse_expires(_value),
         #[cfg(feature = "jiff")]
-        jiff: dep_jiff::parse_expires(value),
+        jiff: dep_jiff::parse_expires(_value),
     }))
 }
 
 impl Cookie {
-    pub fn serialize_expire(&self, buf: &mut String) -> crate::Result<()> {
+    #[allow(clippy::ptr_arg)]
+    pub fn serialize_expire(&self, _buf: &mut String) -> crate::Result<()> {
         #[cfg(feature = "time")]
         {
-            if self.serialize_expires_time(buf)? {
+            if self.serialize_expires_time(_buf)? {
                 return Ok(());
             }
         }
 
         #[cfg(feature = "chrono")]
         {
-            if self.serialize_expires_chrono(buf)? {
+            if self.serialize_expires_chrono(_buf)? {
                 return Ok(());
             };
         }
 
         #[cfg(feature = "jiff")]
         {
-            self.serialize_expires_jiff(buf)?;
+            self.serialize_expires_jiff(_buf)?;
             return Ok(());
         }
 

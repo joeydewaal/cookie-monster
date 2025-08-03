@@ -174,7 +174,7 @@ fn parse_attributes(
             ("max-age", Some(value)) => cookie.max_age = parse_max_age(value, &options),
             ("domain", Some(value)) => cookie.domain = parse_domain(value, parts.ptr, &options),
             ("path", Some(value)) => cookie.path = parse_path(value, parts.ptr, &options),
-            ("expires", Some(value)) => cookie.expires = expires::parse_expires(&value),
+            ("expires", Some(value)) => cookie.expires = expires::parse_expires(value),
             ("", Some(_)) if is_strict => {
                 // invalid attributes return an error (foo=bar; =10)
                 return Err(Error::InvalidAttribute);

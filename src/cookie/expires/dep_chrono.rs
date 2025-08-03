@@ -7,15 +7,14 @@ use crate::{Cookie, Error};
 
 use super::{
     Expires, ExpiresInner,
-    formats::{FMT1, FMT2, FMT3, FMT4, FMT5},
+    formats::{FMT1, FMT2, FMT3, FMT4},
 };
 
-static PARTS: [StrftimeItems<'static>; 5] = [
+static PARTS: [StrftimeItems<'static>; 4] = [
     StrftimeItems::new(FMT1),
     StrftimeItems::new(FMT2),
     StrftimeItems::new(FMT3),
     StrftimeItems::new(FMT4),
-    StrftimeItems::new(FMT5),
 ];
 
 impl From<DateTime<Utc>> for Expires {
@@ -55,13 +54,10 @@ impl Cookie {
 }
 
 pub fn parse_expires(value: &str) -> Option<DateTime<Utc>> {
-    dbg!(&value);
     for format in PARTS.clone() {
         let mut parsed = Parsed::new();
 
-        let result = chrono::format::parse(&mut parsed, value, format);
-        dbg!(&result);
-        if result.is_ok() {
+        if chrono::format::parse(&mut parsed, value, format).is_ok() {
             if let Some(year) = parsed.year().or_else(|| parsed.year_mod_100()) {
                 let offset = match year {
                     0..=68 => 2000,
@@ -69,13 +65,9 @@ pub fn parse_expires(value: &str) -> Option<DateTime<Utc>> {
                     _ => 0,
                 };
 
-                dbg!(&year, offset);
-                let _ = parsed.set_year(year as i64 + offset).ok().unwrap();
+                let _ = parsed.set_year(year as i64 + offset).ok();
             }
-            dbg!(&parsed);
-            let result = parsed.to_datetime_with_timezone(&chrono::Utc).ok();
-            dbg!(&result);
-            return result;
+            return parsed.to_datetime_with_timezone(&chrono::Utc).ok();
         }
     }
     None

@@ -6,7 +6,7 @@ use crate::{Cookie, CookieBuilder, Error};
 
 use super::{
     Expires, ExpiresInner,
-    formats::{FMT1, FMT2, FMT3, FMT4, FMT5},
+    formats::{FMT1, FMT2, FMT3, FMT4},
 };
 
 impl From<Timestamp> for Expires {
@@ -42,12 +42,11 @@ impl Cookie {
 
 impl CookieBuilder {}
 
-pub fn parse_expires(attribute: &str) -> Option<Timestamp> {
-    let mut parsed = BrokenDownTime::parse(FMT1, attribute)
-        .or_else(|_| BrokenDownTime::parse(FMT2, attribute))
-        .or_else(|_| BrokenDownTime::parse(FMT3, attribute))
-        .or_else(|_| BrokenDownTime::parse(FMT4, attribute))
-        .or_else(|_| BrokenDownTime::parse(FMT5, attribute))
+pub fn parse_expires(value: &str) -> Option<Timestamp> {
+    let mut parsed = BrokenDownTime::parse(FMT1, value)
+        .or_else(|_| BrokenDownTime::parse(FMT2, value))
+        .or_else(|_| BrokenDownTime::parse(FMT3, value))
+        .or_else(|_| BrokenDownTime::parse(FMT4, value))
         .ok()?;
 
     if let Some(year) = parsed.year() {
