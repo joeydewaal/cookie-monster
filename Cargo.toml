@@ -1,0 +1,95 @@
+[package]
+name = "cookie-monster"
+version = "0.1.0"
+authors = ["Joey de Waal <dewaaljoey@gmail.com>"]
+edition = "2024"
+license = "MIT"
+readme = "README.md"
+description = """
+HTTP cookie parsing and cookie jar management. Supports signed and private
+(encrypted, authenticated) jars.
+"""
+
+[features]
+percent-encode = ["percent-encoding"]
+time = []
+chrono = []
+jiff = []
+
+
+[dependencies]
+# Encoding
+percent-encoding = { version = "2.3.1", optional = true }
+
+# Expiry
+time = { version = "0.3", default-features = false, features = ["std", "parsing", "formatting", "macros"] }
+chrono = { version = "0.4", default-features = false, features = ["std"] }
+jiff = { version = "0.2.15" }
+
+
+# Parse cookie tests
+[[test]]
+name = "parse_name_value"
+path = "tests/parse/name_value.rs"
+
+[[test]]
+name = "parse_attributes"
+path = "tests/parse/attributes.rs"
+
+[[test]]
+name = "parse_secure"
+path = "tests/parse/secure.rs"
+
+[[test]]
+name = "parse_http_only"
+path = "tests/parse/http_only.rs"
+
+[[test]]
+name = "parse_partitioned"
+path = "tests/parse/partitioned.rs"
+
+[[test]]
+name = "parse_max_age"
+path = "tests/parse/max_age.rs"
+
+[[test]]
+name = "parse_domain"
+path = "tests/parse/domain.rs"
+
+[[test]]
+name = "parse_path"
+path = "tests/parse/path.rs"
+
+
+# Serialize cookie tests
+[[test]]
+name = "serialize_name_value"
+path = "tests/serialize/name_value.rs"
+
+[[test]]
+name = "serialize_attributes"
+path = "tests/serialize/attributes.rs"
+
+[[test]]
+name = "serialize_secure"
+path = "tests/serialize/secure.rs"
+
+[[test]]
+name = "serialize_http_only"
+path = "tests/serialize/http_only.rs"
+
+[[test]]
+name = "serialize_partitioned"
+path = "tests/serialize/partitioned.rs"
+
+[[test]]
+name = "serialize_max_age"
+path = "tests/serialize/max_age.rs"
+
+[[test]]
+name = "serialize_domain"
+path = "tests/serialize/domain.rs"
+
+[[test]]
+name = "serialize_path"
+path = "tests/serialize/path.rs"
