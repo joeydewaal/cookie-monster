@@ -6,28 +6,20 @@ mod util;
 fn secure() {
     assert_eq_parse!(
         "foo=bar; Secure",
-        all = Cookie::build("foo", "bar").secure().build()
+        Ok(Cookie::build("foo", "bar").secure().build())
     );
     assert_eq_parse!(
         "foo=bar; secure",
-        all = Cookie::build("foo", "bar").secure().build()
+        Ok(Cookie::build("foo", "bar").secure().build())
     );
     assert_eq_parse!(
         "foo=bar; SECURE",
-        all = Cookie::build("foo", "bar").secure().build()
+        Ok(Cookie::build("foo", "bar").secure().build())
     );
 }
 
 #[test]
 fn invalid_secure() {
-    assert_eq_parse!(
-        "foo=bar; Sekure",
-        parse = Ok(Cookie::new("foo", "bar")),
-        unchecked = Cookie::new("foo", "bar")
-    );
-    assert_eq_parse!(
-        "foo=bar; Secure\0",
-        parse = Ok(Cookie::new("foo", "bar")),
-        unchecked = Cookie::new("foo", "bar")
-    );
+    assert_eq_parse!("foo=bar; Sekure", Ok(Cookie::new("foo", "bar")));
+    assert_eq_parse!("foo=bar; Secure\0", Ok(Cookie::new("foo", "bar")));
 }

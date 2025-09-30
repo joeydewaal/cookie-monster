@@ -2,16 +2,12 @@ use crate::{Error, util::TinyStr};
 
 use super::{Cookie, parse::invalid_cookie_value};
 
-pub fn parse_path(path: &mut str, source: *const u8, is_unchecked: bool) -> Option<TinyStr> {
+pub fn parse_path(path: &mut str, source: *const u8) -> Option<TinyStr> {
     // If the attribute-value is empty or if the first character of the
     //     attribute-value is not %x2F ("/"):
     //     Let cookie-path be the default-path.
     // Otherwise:
     //    Let cookie-path be the attribute-value.
-    if is_unchecked {
-        return Some(TinyStr::index(path, source));
-    }
-
     if !valid_path(path) {
         None
     } else {

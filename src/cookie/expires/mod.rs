@@ -22,8 +22,10 @@ pub mod formats {
 }
 
 #[allow(unused)]
+#[derive(Clone)]
 pub struct Expires(Inner);
 
+#[derive(Clone)]
 pub(crate) enum Inner {
     Remove,
     Exp {
@@ -37,7 +39,7 @@ pub(crate) enum Inner {
 }
 
 impl Expires {
-    pub fn in_the_past() -> Self {
+    pub fn remove() -> Self {
         Self(Inner::Remove)
     }
 }
@@ -76,6 +78,7 @@ impl Cookie {
 
 #[cfg(test)]
 pub mod test_cases {
+    #[allow(unused)]
     pub const ABBREVIATED_YEARS: &[(&str, u32, u32, i32, u32, u32, u32)] = &[
         (
             "foo=bar; expires=Thu, 10-Sep-20 20:00:00 GMT",
@@ -124,6 +127,7 @@ pub mod test_cases {
         ),
     ];
 
+    #[allow(unused)]
     pub const ALTERNATIVE_FMTS: &[(&str, u32, u32, i32, u32, u32, u32)] = &[
         (
             "foo=bar; expires=Sun, 06 Nov 1994 08:49:37 GMT",

@@ -4,29 +4,20 @@ mod util;
 
 #[test]
 fn attributes() {
-    let cookie = Cookie::build("foo", "bar").secure().http_only().build();
+    let cookie = || Cookie::build("foo", "bar").secure().http_only().build();
 
-    assert_eq_parse!("foo=bar; Secure; HttpOnly", all = cookie);
-    assert_eq_parse!("foo=bar; Secure;; HttpOnly", all = cookie);
+    assert_eq_parse!("foo=bar; Secure; HttpOnly", Ok(cookie()));
+    assert_eq_parse!("foo=bar; Secure;; HttpOnly", Ok(cookie()));
     // assert_eq_parse!("foo=bar; Secure ;; HttpOnly; ", all = cookie);
 }
 
 #[test]
 fn invalid_attribute() {
     // Invalid characters are skipped.
-    assert_eq_parse!(
-        "foo=bar; Secure\0",
-        parse = Ok(Cookie::new("foo", "bar")),
-        unchecked = Cookie::new("foo", "bar")
-    );
+    assert_eq_parse!("foo=bar; Secure\0", Ok(Cookie::new("foo", "bar")));
     assert_eq_parse!(
         " foo=bar ;HttpOnly; =secure",
-        parse = Ok(Cookie::build("foo", "bar").http_only().build()),
-        unchecked = Cookie::build("foo", "bar").http_only().build()
+        Ok(Cookie::build("foo", "bar").http_only().build())
     );
-    assert_eq_parse!(
-        "foo=bar; Sekure",
-        parse = Ok(Cookie::new("foo", "bar")),
-        unchecked = Cookie::new("foo", "bar")
-    );
+    assert_eq_parse!("foo=bar; Sekure", Ok(Cookie::new("foo", "bar")));
 }

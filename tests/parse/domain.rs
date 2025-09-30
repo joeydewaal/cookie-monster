@@ -6,28 +6,28 @@ mod util;
 fn domain() {
     assert_eq_parse!(
         "foo=bar; Domain=domain.com",
-        all = Cookie::build("foo", "bar").domain("domain.com").build()
+        Ok(Cookie::build("foo", "bar").domain("domain.com").build())
     );
     assert_eq_parse!(
         "foo=bar; domain=domain.com",
-        all = Cookie::build("foo", "bar").domain("domain.com").build()
+        Ok(Cookie::build("foo", "bar").domain("domain.com").build())
     );
     assert_eq_parse!(
         "foo=bar; DOMAIN=domain.com",
-        all = Cookie::build("foo", "bar").domain("domain.com").build()
+        Ok(Cookie::build("foo", "bar").domain("domain.com").build())
     );
 
     assert_eq_parse!(
         "foo=bar; Domain=.domain.com",
-        all = Cookie::build("foo", "bar").domain("domain.com").build()
+        Ok(Cookie::build("foo", "bar").domain("domain.com").build())
     );
     assert_eq_parse!(
         "foo=bar; Domain=DOMAIN.COM",
-        all = Cookie::build("foo", "bar").domain("domain.com").build()
+        Ok(Cookie::build("foo", "bar").domain("domain.com").build())
     );
     assert_eq_parse!(
         "foo=bar; Domain=domain.com.",
-        all = Cookie::build("foo", "bar").domain("domain.com.").build()
+        Ok(Cookie::build("foo", "bar").domain("domain.com.").build())
     );
 }
 
@@ -35,20 +35,16 @@ fn domain() {
 fn invalid_domain() {
     assert_eq_parse!(
         "foo=bar; Domain=www.foo\0.com",
-        parse = Ok(Cookie::new("foo", "bar")),
-        unchecked = Cookie::build("foo", "bar").domain("www.foo\0.com").build()
+        Ok(Cookie::new("foo", "bar"))
     );
-    assert_eq_parse!(
-        "foo=bar; Domain=",
-        parse = Ok(Cookie::new("foo", "bar")),
-        unchecked = Cookie::build("foo", "bar").domain("").build()
-    );
+
+    assert_eq_parse!("foo=bar; Domain=", Ok(Cookie::new("foo", "bar")));
 }
 
 #[test]
 fn domain_not_eq() {
     assert_ne_parse!(
         "foo=bar; Domain=.domain.com",
-        all = Cookie::build("foo", "bar").domain(".domain.com").build()
+        Ok(Cookie::build("foo", "bar").domain(".domain.com").build())
     );
 }

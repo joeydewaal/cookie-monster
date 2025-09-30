@@ -21,30 +21,10 @@ impl Cookie {
     ///
     /// *Secure,HttpOnly,Partitioned*
     pub fn parse(string: impl Into<Box<str>>) -> Result<Cookie, Error> {
-        Self::parse_inner(string.into(), false)
-    }
-    /// Mostly follows RFC 6265  but does not check for invalid characters:
-    /// Characters that are not allowed in the name, value(e.g. ascii control characters and
-    /// spaces...) return an error. But invalid characters in attribute name/values are ignored.
-    /// If no '=' is found, an empty cookie is returned.
-    ///
-    /// *Expires*
-    ///
-    /// *Max-Age*
-    /// if a '+' is found the max-age value is still parsed.
-    ///
-    /// *Domain*
-    /// An empty domain counts as an empty domain value.
-    ///
-    /// *Path*
-    /// An empty path counts as an empty path value.
-    ///
-    /// *Secure,HttpOnly,Partitioned*
-    pub fn parse_unchecked(string: impl Into<Box<str>>) -> Cookie {
-        Self::parse_inner(string.into(), true).expect("unchecked should never panic")
+        Self::parse_inner(string.into())
     }
 
-    fn parse_inner(mut string: Box<str>, is_unchecked: bool) -> Result<Cookie, Error> {
+    fn parse_inner(mut string: Box<str>) -> Result<Cookie, Error> {
         let mut parts = SplitMut::new(&mut string);
 
         let name_value = parts.next().expect("First split always returns something");
@@ -52,11 +32,7 @@ impl Cookie {
         // 2.  If the name-value-pair string lacks a %x3D ("=") character,
         //     ignore the set-cookie-string entirely.
         let Some(index) = name_value.find('=') else {
-            if is_unchecked {
-                return Ok(Cookie::empty());
-            } else {
-                return Err(Error::EqualsNotFound);
-            }
+            return Err(Error::EqualsNotFound);
         };
 
         // 4.  Remove any leading or trailing WSP characters from the name
@@ -65,9 +41,9 @@ impl Cookie {
         let mut value = name_value[(index + 1)..].trim();
 
         // 5.  If the name string is empty, ignore the set-cookie-string entirely.
-        if !is_unchecked && name.is_empty() {
+        if name.is_empty() {
             return Err(Error::NameEmpty);
-        } else if !is_unchecked && invalid_cookie_value(name) {
+        } else if invalid_cookie_value(name) {
             return Err(Error::InvalidName);
         }
 
@@ -76,7 +52,7 @@ impl Cookie {
             value = &value[1..(value.len() - 1)];
         }
 
-        if invalid_cookie_value(value) && !is_unchecked {
+        if invalid_cookie_value(value) {
             return Err(Error::InvalidValue);
         }
 
@@ -85,17 +61,13 @@ impl Cookie {
 
         let mut cookie = Cookie::new_inner(name, value);
 
-        parse_attributes(&mut cookie, parts, is_unchecked)?;
+        parse_attributes(&mut cookie, parts)?;
         cookie.raw_value = Some(string);
         Ok(cookie)
     }
 }
 
-fn parse_attributes(
-    cookie: &mut Cookie,
-    mut parts: SplitMut,
-    is_unchecked: bool,
-) -> crate::Result<()> {
+fn parse_attributes(cookie: &mut Cookie, mut parts: SplitMut) -> crate::Result<()> {
     // 1.  If the unparsed-attributes string is empty, skip the rest of
     // these steps.
     // 2.  Discard the first character of the unparsed-attributes (which
@@ -115,14 +87,6 @@ fn parse_attributes(
             //     name string and the attribute-value string.
             value = trim_mut(&mut value[1..]);
 
-            // match options.strictness() {
-            //     Strictness::Strict if invalid_cookie_value(value) => {
-            //         return Err(Error::InvalidAttribute);
-            //     }
-            //     Strictness::Relaxed if invalid_cookie_value(value) => continue,
-            //     _ => {}
-            // }
-
             (name, Some(value))
         } else {
             (part, None)
@@ -141,8 +105,8 @@ fn parse_attributes(
             ("httponly", None) => cookie.set_http_only(true),
             ("partitioned", None) => cookie.set_partitioned(true),
             ("max-age", Some(value)) => cookie.max_age = parse_max_age(value),
-            ("domain", Some(value)) => cookie.domain = parse_domain(value, parts.ptr, is_unchecked),
-            ("path", Some(value)) => cookie.path = parse_path(value, parts.ptr, is_unchecked),
+            ("domain", Some(value)) => cookie.domain = parse_domain(value, parts.ptr),
+            ("path", Some(value)) => cookie.path = parse_path(value, parts.ptr),
             ("expires", Some(value)) => cookie.expires = expires::parse_expires(value),
             _ => continue,
         }

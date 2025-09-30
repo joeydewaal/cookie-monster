@@ -2,10 +2,10 @@ use crate::util::TinyStr;
 
 use super::{Cookie, parse::invalid_cookie_value};
 
-pub fn parse_domain(domain: &mut str, src: *const u8, is_unchecked: bool) -> Option<TinyStr> {
+pub fn parse_domain(domain: &mut str, src: *const u8) -> Option<TinyStr> {
     domain.make_ascii_lowercase();
 
-    if !is_unchecked && invalid_cookie_value(domain) {
+    if invalid_cookie_value(domain) {
         return None;
     }
 
@@ -13,11 +13,7 @@ pub fn parse_domain(domain: &mut str, src: *const u8, is_unchecked: bool) -> Opt
     // If the attribute-value is empty, the behavior is undefined.  However,
     // the user agent SHOULD ignore the cookie-av entirely.
     if domain.is_empty() {
-        if is_unchecked {
-            return Some(TinyStr::empty());
-        } else {
-            return None;
-        }
+        return None;
     }
 
     // If the first character of the attribute-value string is %x2E ("."):

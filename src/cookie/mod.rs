@@ -7,7 +7,6 @@ use std::{
 mod builder;
 mod domain;
 mod expires;
-mod flags;
 mod max_age;
 mod parse;
 mod path;
@@ -16,11 +15,11 @@ mod serialize;
 
 pub use builder::CookieBuilder;
 use expires::Expires;
-use flags::BitFlags;
 use same_site::SameSite;
 
 use crate::util::TinyStr;
 
+#[derive(Default, Clone)]
 pub struct Cookie {
     // A read only buffer to the raw cookie value.
     raw_value: Option<Box<str>>,
@@ -30,7 +29,10 @@ pub struct Cookie {
     max_age: Option<u64>,
     domain: Option<TinyStr>,
     path: Option<TinyStr>,
-    flags: BitFlags,
+    secure: bool,
+    http_only: bool,
+    partitioned: bool,
+    same_site: Option<SameSite>,
 }
 
 impl Cookie {
@@ -48,21 +50,14 @@ impl Cookie {
     where
         N: Into<Cow<'static, str>>,
     {
-        Cookie::build(name, "")
-            .expires(Expires::in_the_past())
-            .build()
+        Cookie::build(name, "").expires(Expires::remove()).build()
     }
 
     fn new_inner(name: TinyStr, value: TinyStr) -> Cookie {
         Cookie {
-            raw_value: None,
             name,
             value,
-            expires: None,
-            domain: None,
-            max_age: None,
-            path: None,
-            flags: BitFlags::empty(),
+            ..Default::default()
         }
     }
 
@@ -159,43 +154,43 @@ impl Cookie {
 
     #[inline]
     pub fn secure(&self) -> bool {
-        self.flags.secure()
+        self.secure
     }
 
     #[inline]
     pub fn set_secure(&mut self, secure: bool) {
-        self.flags.set_secure(secure);
+        self.secure = secure
     }
 
     #[inline]
     pub fn http_only(&self) -> bool {
-        self.flags.http_only()
+        self.http_only
     }
 
     #[inline]
     pub fn set_http_only(&mut self, http_only: bool) {
-        self.flags.set_http_only(http_only);
+        self.http_only = http_only
     }
 
     #[inline]
     pub fn partitioned(&self) -> bool {
-        self.flags.partitioned()
+        self.partitioned
     }
 
     // Enabling the Partitioned attribute also enables the Secure attribute
     #[inline]
     pub fn set_partitioned(&mut self, partitioned: bool) {
-        self.flags.set_partitioned(partitioned);
+        self.partitioned = partitioned;
     }
 
     #[inline]
     pub fn same_site(&self) -> Option<SameSite> {
-        self.flags.same_site()
+        self.same_site
     }
 
     #[inline]
     pub fn set_same_site<S: Into<Option<SameSite>>>(&mut self, same_site: S) {
-        self.flags.set_same_site(same_site.into());
+        self.same_site = same_site.into();
     }
 
     #[doc(hidden)]

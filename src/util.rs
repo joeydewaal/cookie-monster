@@ -1,9 +1,10 @@
 use std::borrow::Cow;
 
+#[derive(Clone)]
 pub(crate) enum TinyStr {
     Static(&'static str),
     Owned(Box<str>),
-    Index(usize, usize),
+    Indexed(usize, usize),
 }
 
 impl TinyStr {
@@ -11,7 +12,7 @@ impl TinyStr {
         match self {
             TinyStr::Static(s) => s,
             TinyStr::Owned(owned) => owned,
-            TinyStr::Index(start, end) => &buf.unwrap()[(*start)..(*end)],
+            TinyStr::Indexed(start, end) => &buf.unwrap()[(*start)..(*end)],
         }
     }
 
@@ -21,7 +22,7 @@ impl TinyStr {
 
         let start = needle_start - haystack_start;
         let end = start + needle.len();
-        Self::Index(start, end)
+        Self::Indexed(start, end)
     }
 
     pub fn empty() -> TinyStr {
@@ -38,5 +39,11 @@ where
             Cow::Owned(owned) => TinyStr::Owned(owned.into()),
             Cow::Borrowed(borrowed) => TinyStr::Static(borrowed),
         }
+    }
+}
+
+impl Default for TinyStr {
+    fn default() -> Self {
+        Self::empty()
     }
 }
