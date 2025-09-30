@@ -25,7 +25,7 @@ impl From<Timestamp> for Expires {
 impl Cookie {
     pub fn expires_jiff(&self) -> Option<Timestamp> {
         match &self.expires {
-            Some(Expires(Inner::Exp { jiff, .. })) => *jiff,
+            Expires(Inner::Exp { jiff, .. }) => *jiff,
             _ => None,
         }
     }

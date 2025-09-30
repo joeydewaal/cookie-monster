@@ -37,7 +37,7 @@ impl From<OffsetDateTime> for Expires {
 impl Cookie {
     pub fn expires_time(self) -> Option<OffsetDateTime> {
         match &self.expires {
-            Some(Expires(Inner::Exp { time, .. })) => *time,
+            Expires(Inner::Exp { time, .. }) => *time,
             _ => None,
         }
     }

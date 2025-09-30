@@ -22,12 +22,16 @@ pub mod formats {
 }
 
 #[allow(unused)]
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Expires(Inner);
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub(crate) enum Inner {
+    // So a user can still remove a cookie without needing any of the datetime features.
     Remove,
+    // No expiry time.
+    #[default]
+    Session,
     Exp {
         #[cfg(feature = "time")]
         time: Option<time::OffsetDateTime>,
@@ -44,15 +48,15 @@ impl Expires {
     }
 }
 
-pub fn parse_expires(_value: &str) -> Option<Expires> {
-    Some(Expires(Inner::Exp {
+pub fn parse_expires(_value: &str) -> Expires {
+    Expires(Inner::Exp {
         #[cfg(feature = "time")]
         time: dep_time::parse_expires_time(_value),
         #[cfg(feature = "chrono")]
         chrono: dep_chrono::parse_expires(_value),
         #[cfg(feature = "jiff")]
         jiff: dep_jiff::parse_expires(_value),
-    }))
+    })
 }
 
 impl Cookie {
@@ -60,14 +64,20 @@ impl Cookie {
     pub fn serialize_expire(&self, buf: &mut String) -> crate::Result<()> {
         match self.expires {
             #[cfg(feature = "time")]
-            Some(Expires(Inner::Exp { time: Some(t), .. })) => dep_time::ser_expires(t, buf),
+            Expires(Inner::Exp { time: Some(t), .. }) => {
+                return dep_time::ser_expires(t, buf);
+            }
             #[cfg(feature = "chrono")]
-            Some(Expires(Inner::Exp {
+            Expires(Inner::Exp {
                 chrono: Some(c), ..
-            })) => dep_chrono::ser_expires(c, buf),
+            }) => {
+                return dep_chrono::ser_expires(c, buf);
+            }
             #[cfg(feature = "jiff")]
-            Some(Expires(Inner::Exp { jiff: Some(j), .. })) => dep_jiff::ser_expires(j, buf),
-            Some(Expires(Inner::Remove)) => {
+            Expires(Inner::Exp { jiff: Some(j), .. }) => {
+                return dep_jiff::ser_expires(j, buf);
+            }
+            Expires(Inner::Remove) => {
                 buf.push_str("; Expires=Thu, 01 Jan 1970 00:00:00 GMT");
                 Ok(())
             }

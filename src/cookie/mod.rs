@@ -25,7 +25,7 @@ pub struct Cookie {
     raw_value: Option<Box<str>>,
     name: TinyStr,
     value: TinyStr,
-    expires: Option<Expires>,
+    expires: Expires,
     max_age: Option<u64>,
     domain: Option<TinyStr>,
     path: Option<TinyStr>,
@@ -61,10 +61,6 @@ impl Cookie {
         }
     }
 
-    fn empty() -> Cookie {
-        Self::new("", "")
-    }
-
     pub fn build<N, V>(name: N, value: V) -> CookieBuilder
     where
         N: Into<Cow<'static, str>>,
@@ -95,7 +91,7 @@ impl Cookie {
 
     #[inline]
     pub fn set_expires<E: Into<Expires>>(&mut self, expires: E) {
-        self.expires = Some(expires.into());
+        self.expires = expires.into();
     }
 
     #[inline]

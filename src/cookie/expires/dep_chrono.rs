@@ -38,7 +38,7 @@ impl From<DateTime<Utc>> for Expires {
 impl Cookie {
     pub fn expires_chrono(&self) -> Option<DateTime<Utc>> {
         match &self.expires {
-            Some(Expires(Inner::Exp { chrono, .. })) => *chrono,
+            Expires(Inner::Exp { chrono, .. }) => *chrono,
             _ => None,
         }
     }
