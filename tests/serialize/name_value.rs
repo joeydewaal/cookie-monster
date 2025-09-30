@@ -4,36 +4,16 @@ mod util;
 
 #[test]
 fn name_value() {
-    assert_eq_ser!(Cookie::new("foo", "bar"), all = "foo=bar");
-    assert_eq_ser!(Cookie::new("foo", ""), all = "foo=");
-    assert_eq_ser!(Cookie::new("foo", "\"\""), all = "foo=\"\"");
+    assert_eq_ser!(Cookie::new("foo", "bar"), Ok("foo=bar"));
+    assert_eq_ser!(Cookie::new("foo", ""), Ok("foo="));
+    assert_eq_ser!(Cookie::new("foo", "\"\""), Ok("foo=\"\""));
 }
 
 #[test]
 fn invalid_name_value() {
-    assert_eq_ser!(
-        Cookie::new("", "bar"),
-        serialize = Err(&Error::NameEmpty),
-        unchecked = "=bar"
-    );
-    assert_eq_ser!(
-        Cookie::new("foo\0", "bar"),
-        serialize = Err(&Error::InvalidName),
-        unchecked = "foo\0=bar"
-    );
-    assert_eq_ser!(
-        Cookie::new("foo", "bar\0"),
-        serialize = Err(&Error::InvalidValue),
-        unchecked = "foo=bar\0"
-    );
-    assert_eq_ser!(
-        Cookie::new("foo", " "),
-        serialize = Err(&Error::InvalidValue),
-        unchecked = "foo= "
-    );
-    assert_eq_ser!(
-        Cookie::new("foo", "\""),
-        serialize = Err(&Error::InvalidValue),
-        unchecked = "foo=\""
-    );
+    assert_eq_ser!(Cookie::new("", "bar"), Err(&Error::NameEmpty));
+    assert_eq_ser!(Cookie::new("foo\0", "bar"), Err(&Error::InvalidName));
+    assert_eq_ser!(Cookie::new("foo", "bar\0"), Err(&Error::InvalidValue));
+    assert_eq_ser!(Cookie::new("foo", " "), Err(&Error::InvalidValue));
+    assert_eq_ser!(Cookie::new("foo", "\""), Err(&Error::InvalidValue));
 }

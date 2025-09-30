@@ -6,10 +6,10 @@ mod util;
 fn http_only() {
     assert_eq_ser!(
         Cookie::build("foo", "bar").http_only().build(),
-        all = "foo=bar; HttpOnly"
+        Ok("foo=bar; HttpOnly")
     );
     assert_eq_ser!(
         Cookie::build("foo", "").http_only().build(),
-        all = "foo=; HttpOnly"
+        Ok("foo=; HttpOnly")
     );
 }

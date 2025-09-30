@@ -6,10 +6,10 @@ mod util;
 fn partitioned() {
     assert_eq_ser!(
         Cookie::build("foo", "bar").partitioned().build(),
-        all = "foo=bar; Secure; Partitioned"
+        Ok("foo=bar; Secure; Partitioned")
     );
     assert_eq_ser!(
         Cookie::build("foo", "").partitioned().build(),
-        all = "foo=; Secure; Partitioned"
+        Ok("foo=; Secure; Partitioned")
     );
 }

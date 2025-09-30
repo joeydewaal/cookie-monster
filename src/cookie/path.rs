@@ -30,15 +30,10 @@ pub fn valid_path(path: &str) -> bool {
 
 impl Cookie {
     #[inline]
-    pub(crate) fn serialize_path(&self, buf: &mut String, is_unchecked: bool) -> crate::Result<()> {
+    pub(crate) fn serialize_path(&self, buf: &mut String) -> crate::Result<()> {
         let Some(path) = self.path() else {
             return Ok(());
         };
-
-        if is_unchecked {
-            write_path(buf, path);
-            return Ok(());
-        }
 
         if path.is_empty() {
             return Ok(());

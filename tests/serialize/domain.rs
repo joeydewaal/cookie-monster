@@ -6,26 +6,23 @@ mod util;
 fn domain() {
     assert_eq_ser!(
         Cookie::build("foo", "bar").domain("rust-lang.com").build(),
-        all = "foo=bar; Domain=rust-lang.com"
+        Ok("foo=bar; Domain=rust-lang.com")
     );
 
     assert_eq_ser!(
         Cookie::build("foo", "bar").domain(".rust-lang.com").build(),
-        serialize = Ok("foo=bar; Domain=rust-lang.com"),
-        unchecked = "foo=bar; Domain=.rust-lang.com"
+        Ok("foo=bar; Domain=rust-lang.com")
     );
 
     assert_eq_ser!(
         Cookie::build("foo", "bar").domain("").build(),
-        serialize = Ok("foo=bar"),
-        unchecked = "foo=bar; Domain="
+        Ok("foo=bar")
     );
 
     assert_eq_ser!(
         Cookie::build("foo", "bar")
             .domain("rust-lang\0.com")
             .build(),
-        serialize = Ok("foo=bar"),
-        unchecked = "foo=bar; Domain=rust-lang\0.com"
+        Ok("foo=bar")
     );
 }

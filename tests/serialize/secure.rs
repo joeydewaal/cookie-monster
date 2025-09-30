@@ -6,10 +6,10 @@ mod util;
 fn secure() {
     assert_eq_ser!(
         Cookie::build("foo", "bar").secure().build(),
-        all = "foo=bar; Secure"
+        Ok("foo=bar; Secure")
     );
     assert_eq_ser!(
         Cookie::build("foo", "").secure().build(),
-        all = "foo=; Secure"
+        Ok("foo=; Secure")
     );
 }

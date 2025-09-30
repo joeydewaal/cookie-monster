@@ -5,37 +5,29 @@ use std::fmt::Write;
 
 impl Cookie {
     pub fn serialize(&self) -> crate::Result<String> {
-        self.serialize_inner(false)
+        self.serialize_inner()
     }
 
-    pub fn serialize_unchecked(&self) -> String {
-        self.serialize_inner(true)
-            .expect("Unchecked serialize should not return an error")
-    }
-
-    fn serialize_inner(&self, is_unchecked: bool) -> crate::Result<String> {
+    fn serialize_inner(&self) -> crate::Result<String> {
         let value = self.value();
         let name = self.name();
         let domain = self.domain();
         let path = self.path();
 
-        if !is_unchecked {
-            if name.is_empty() {
-                return Err(Error::NameEmpty);
-            } else if invalid_cookie_value(name) {
-                return Err(Error::InvalidName);
-            }
+        if name.is_empty() {
+            return Err(Error::NameEmpty);
+        } else if invalid_cookie_value(name) {
+            return Err(Error::InvalidName);
+        }
 
-            let value_to_check =
-                if value.len() > 1 && value.starts_with('"') && value.ends_with('"') {
-                    &value[1..(value.len() - 1)]
-                } else {
-                    value
-                };
+        let value_to_check = if value.len() > 1 && value.starts_with('"') && value.ends_with('"') {
+            &value[1..(value.len() - 1)]
+        } else {
+            value
+        };
 
-            if invalid_cookie_value(value_to_check) {
-                return Err(Error::InvalidValue);
-            }
+        if invalid_cookie_value(value_to_check) {
+            return Err(Error::InvalidValue);
         }
 
         let buf_len = name.len()
@@ -56,9 +48,9 @@ impl Cookie {
             write!(&mut buf, "{max_age}").expect("Failed to write Max-Age seconds");
         }
 
-        self.serialize_domain(&mut buf, is_unchecked)?;
+        self.serialize_domain(&mut buf)?;
 
-        self.serialize_path(&mut buf, is_unchecked)?;
+        self.serialize_path(&mut buf)?;
 
         // Partitioned cookies need the Secure attribute
         if self.secure() || self.partitioned() {

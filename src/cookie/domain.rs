@@ -35,19 +35,10 @@ pub fn parse_domain(domain: &mut str, src: *const u8) -> Option<TinyStr> {
 
 impl Cookie {
     #[inline]
-    pub(crate) fn serialize_domain(
-        &self,
-        buf: &mut String,
-        is_unchecked: bool,
-    ) -> crate::Result<()> {
+    pub(crate) fn serialize_domain(&self, buf: &mut String) -> crate::Result<()> {
         let Some(mut domain) = self.domain() else {
             return Ok(());
         };
-
-        if is_unchecked {
-            write_domain(buf, domain);
-            return Ok(());
-        }
 
         // We skip empty domains.
         if domain.is_empty() {
