@@ -36,9 +36,9 @@ impl From<DateTime<Utc>> for Expires {
 }
 
 impl Cookie {
-    pub fn expires_chrono(&self) -> Option<DateTime<Utc>> {
+    pub fn expires_chrono(&self) -> Option<&DateTime<Utc>> {
         match &self.expires {
-            Expires(Inner::Exp { chrono, .. }) => *chrono,
+            Expires(Inner::Exp { chrono, .. }) => chrono.as_ref(),
             _ => None,
         }
     }
@@ -102,7 +102,7 @@ mod test_chrono {
             let found = Cookie::parse(cookie).unwrap();
             let expires = found.expires_chrono().unwrap();
 
-            assert_eq!(expires, expected);
+            assert_eq!(expires, &expected);
         }
     }
 
@@ -118,7 +118,7 @@ mod test_chrono {
             let found = Cookie::parse(cookie).unwrap();
             let expires = found.expires_chrono().unwrap();
 
-            assert_eq!(expires, expected);
+            assert_eq!(expires, &expected);
         }
     }
 
@@ -134,6 +134,6 @@ mod test_chrono {
         );
 
         let cookie = Cookie::parse("foo=bar; Expires=Fri, 07 Jan +10000 23:59:59 GMT").unwrap();
-        assert_eq!(cookie.expires_chrono(), Some(MAX_EXPIRES));
+        assert_eq!(cookie.expires_chrono(), Some(&MAX_EXPIRES));
     }
 }

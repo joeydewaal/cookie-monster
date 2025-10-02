@@ -1,7 +1,5 @@
 use cookie_monster::{Cookie, Error};
 
-mod util;
-
 // #[test]
 // fn parse_same_site() {
 //     let expected = Cookie::build("foo", "bar").same_site(SameSite::Lax);

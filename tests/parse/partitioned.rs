@@ -1,6 +1,6 @@
 use cookie_monster::Cookie;
 
-mod util;
+use crate::assert_eq_parse;
 
 #[test]
 fn partitioned() {

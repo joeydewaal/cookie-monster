@@ -35,9 +35,9 @@ impl From<OffsetDateTime> for Expires {
 }
 
 impl Cookie {
-    pub fn expires_time(self) -> Option<OffsetDateTime> {
+    pub fn expires_time(&self) -> Option<&OffsetDateTime> {
         match &self.expires {
-            Expires(Inner::Exp { time, .. }) => *time,
+            Expires(Inner::Exp { time, .. }) => time.as_ref(),
             _ => None,
         }
     }
@@ -120,7 +120,7 @@ mod test_time {
             let found = Cookie::parse(cookie).unwrap();
             let expires = found.expires_time().unwrap();
 
-            assert_eq!(expires, expected);
+            assert_eq!(expires, &expected);
         }
     }
 
@@ -134,7 +134,7 @@ mod test_time {
             let found = Cookie::parse(cookie).unwrap();
             let expires = found.expires_time().unwrap();
 
-            assert_eq!(expires, expected);
+            assert_eq!(expires, &expected);
         }
     }
 }

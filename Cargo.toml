@@ -29,67 +29,10 @@ jiff = { version = "0.2.15", optional = true }
 
 # Parse cookie tests
 [[test]]
-name = "parse_name_value"
-path = "tests/parse/name_value.rs"
-
-[[test]]
-name = "parse_attributes"
-path = "tests/parse/attributes.rs"
-
-[[test]]
-name = "parse_secure"
-path = "tests/parse/secure.rs"
-
-[[test]]
-name = "parse_http_only"
-path = "tests/parse/http_only.rs"
-
-[[test]]
-name = "parse_partitioned"
-path = "tests/parse/partitioned.rs"
-
-[[test]]
-name = "parse_max_age"
-path = "tests/parse/max_age.rs"
-
-[[test]]
-name = "parse_domain"
-path = "tests/parse/domain.rs"
-
-[[test]]
-name = "parse_path"
-path = "tests/parse/path.rs"
-
+name = "parse"
+path = "tests/parse/tests.rs"
 
 # Serialize cookie tests
 [[test]]
-name = "serialize_name_value"
-path = "tests/serialize/name_value.rs"
-
-[[test]]
-name = "serialize_attributes"
-path = "tests/serialize/attributes.rs"
-
-[[test]]
-name = "serialize_secure"
-path = "tests/serialize/secure.rs"
-
-[[test]]
-name = "serialize_http_only"
-path = "tests/serialize/http_only.rs"
-
-[[test]]
-name = "serialize_partitioned"
-path = "tests/serialize/partitioned.rs"
-
-[[test]]
-name = "serialize_max_age"
-path = "tests/serialize/max_age.rs"
-
-[[test]]
-name = "serialize_domain"
-path = "tests/serialize/domain.rs"
-
-[[test]]
-name = "serialize_path"
-path = "tests/serialize/path.rs"
+name = "serialize"
+path = "tests/serialize/tests.rs"

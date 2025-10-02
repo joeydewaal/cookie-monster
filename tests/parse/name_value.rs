@@ -1,6 +1,6 @@
 use cookie_monster::{Cookie, Error};
 
-mod util;
+use crate::{assert_eq_parse, assert_ne_parse};
 
 #[test]
 fn name_value() {

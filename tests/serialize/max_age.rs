@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use cookie_monster::Cookie;
 
-mod util;
+use crate::assert_eq_ser;
 
 #[test]
 fn max_age() {

@@ -216,14 +216,14 @@ impl Debug for Cookie {
             .field("http_only", &self.http_only())
             .field("partitioned", &self.partitioned());
 
-        // #[cfg(feature = "time")]
-        // let debug = debug.field("expires (time)", self.expires_time());
+        #[cfg(feature = "time")]
+        let debug = debug.field("expires_time", &self.expires_time());
 
         #[cfg(feature = "chrono")]
-        let debug = debug.field("expires (chrono)", &self.expires_chrono());
+        let debug = debug.field("expires_chrono", &self.expires_chrono());
 
         #[cfg(feature = "jiff")]
-        let debug = debug.field("expires (jiff)", &self.expires_jiff());
+        let debug = debug.field("expires_jiff", &self.expires_jiff());
 
         debug.finish()
     }

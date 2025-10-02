@@ -1,6 +1,6 @@
 use cookie_monster::Cookie;
 
-mod util;
+use crate::{assert_eq_parse, assert_ne_parse};
 
 #[test]
 fn domain() {

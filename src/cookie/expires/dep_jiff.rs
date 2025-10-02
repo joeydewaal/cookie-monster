@@ -23,9 +23,9 @@ impl From<Timestamp> for Expires {
 }
 
 impl Cookie {
-    pub fn expires_jiff(&self) -> Option<Timestamp> {
+    pub fn expires_jiff(&self) -> Option<&Timestamp> {
         match &self.expires {
-            Expires(Inner::Exp { jiff, .. }) => *jiff,
+            Expires(Inner::Exp { jiff, .. }) => jiff.as_ref(),
             _ => None,
         }
     }
@@ -93,7 +93,7 @@ mod test_jiff {
             let found = Cookie::parse(cookie).unwrap();
             let expires = found.expires_jiff().unwrap();
 
-            assert_eq!(expires, expected);
+            assert_eq!(expires, &expected);
         }
     }
 
@@ -107,7 +107,7 @@ mod test_jiff {
             let found = Cookie::parse(cookie).unwrap();
             let expires = found.expires_jiff().unwrap();
 
-            assert_eq!(expires, expected);
+            assert_eq!(expires, &expected);
         }
     }
 }

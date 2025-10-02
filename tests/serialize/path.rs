@@ -1,6 +1,6 @@
 use cookie_monster::{Cookie, Error};
 
-mod util;
+use crate::assert_eq_ser;
 
 #[test]
 fn path() {
