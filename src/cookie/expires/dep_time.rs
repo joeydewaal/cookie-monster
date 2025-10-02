@@ -3,7 +3,7 @@ use time::{
     macros::format_description, parsing::Parsable,
 };
 
-use crate::Cookie;
+use crate::{Cookie, cookie::expires::ExpVal};
 
 use super::Expires;
 
@@ -24,20 +24,17 @@ impl From<OffsetDateTime> for Expires {
     fn from(value: OffsetDateTime) -> Self {
         // The expires hear cannot be above 9999 years but this is also the upper bound of
         // `time::OffsetDateTime`.
-        Self::Exp {
+        Self::Exp(ExpVal {
             time: Some(value),
-            #[cfg(feature = "chrono")]
-            chrono: None,
-            #[cfg(feature = "jiff")]
-            jiff: None,
-        }
+            ..Default::default()
+        })
     }
 }
 
 impl Cookie {
     pub fn expires_time(&self) -> Option<&OffsetDateTime> {
         match &self.expires {
-            Expires::Exp { time, .. } => time.as_ref(),
+            Expires::Exp(ExpVal { time, .. }) => time.as_ref(),
             _ => None,
         }
     }

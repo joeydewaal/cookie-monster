@@ -2,7 +2,7 @@ use std::fmt::Write;
 
 use jiff::{Timestamp, fmt::strtime::BrokenDownTime, tz::Offset};
 
-use crate::{Cookie, CookieBuilder, Error};
+use crate::{Cookie, CookieBuilder, Error, cookie::expires::ExpVal};
 
 use super::{
     Expires,
@@ -11,21 +11,17 @@ use super::{
 
 impl From<Timestamp> for Expires {
     fn from(value: Timestamp) -> Self {
-        Self::Exp {
-            #[cfg(feature = "time")]
-            time: None,
-            #[cfg(feature = "chrono")]
-            chrono: None,
-            #[cfg(feature = "jiff")]
+        Self::Exp(super::ExpVal {
             jiff: Some(value),
-        }
+            ..Default::default()
+        })
     }
 }
 
 impl Cookie {
     pub fn expires_jiff(&self) -> Option<&Timestamp> {
         match &self.expires {
-            Expires::Exp { jiff, .. } => jiff.as_ref(),
+            Expires::Exp(ExpVal { jiff, .. }) => jiff.as_ref(),
             _ => None,
         }
     }

@@ -91,11 +91,13 @@ impl CookieBuilder {
     // Sets the Partitioned attribute of the cookie. Enabling the Partitioned attribute also
     // enables the Secure attribute.
     //
+    // To disable it use `set_partitioned(false)` TODO
+    //
     // https://developer.mozilla.org/en-US/docs/Web/Privacy/Guides/Privacy_sandbox/Partitioned_cookies
     #[inline]
     pub fn partitioned(mut self) -> Self {
         self.0.set_partitioned(true);
-        self
+        self.secure()
     }
 
     #[inline]
