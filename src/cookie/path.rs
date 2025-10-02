@@ -3,29 +3,19 @@ use crate::{Error, util::TinyStr};
 use super::{Cookie, parse::invalid_cookie_value};
 
 pub fn parse_path(path: &mut str, source: *const u8) -> Option<TinyStr> {
-    // If the attribute-value is empty or if the first character of the
-    //     attribute-value is not %x2F ("/"):
-    //     Let cookie-path be the default-path.
-    // Otherwise:
-    //    Let cookie-path be the attribute-value.
-    if !valid_path(path) {
-        None
-    } else {
-        Some(TinyStr::index(path, source))
-    }
-}
-
-#[inline]
-pub fn valid_path(path: &str) -> bool {
     if path.is_empty() {
-        return false;
+        return None;
     }
 
     if !path.starts_with('/') {
-        return false;
+        return None;
     }
 
-    path.chars().all(|char| !char.is_control() && char != ';')
+    if path.chars().all(|char| !char.is_control() && char != ';') {
+        Some(TinyStr::index(path, source))
+    } else {
+        None
+    }
 }
 
 impl Cookie {
@@ -35,20 +25,18 @@ impl Cookie {
             return Ok(());
         };
 
+        // We're more conservative here because a path attribute makes a cookie __more secure__.
+        // Simply ignore the attribute could lead to some unexpected results.
         if path.is_empty() {
-            return Ok(());
+            return Err(Error::EmptyPathValue);
         }
 
         if !path.starts_with('/') || invalid_cookie_value(path) {
-            return Err(Error::InvalidAttribute);
+            return Err(Error::InvalidPathValue);
         }
 
-        write_path(buf, path);
+        buf.push_str("; Path=");
+        buf.push_str(path);
         Ok(())
     }
-}
-
-fn write_path(buf: &mut String, path: &str) {
-    buf.push_str("; Path=");
-    buf.push_str(path);
 }

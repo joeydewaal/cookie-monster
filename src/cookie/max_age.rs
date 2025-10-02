@@ -10,13 +10,10 @@ pub fn parse_max_age(mut attribute: &str) -> Option<u64> {
             attribute = &attribute[1..];
             true
         }
-        b'+' => {
-            attribute = &attribute[1..];
-            false
-        }
         _ => false,
     };
 
+    // If the remainder of attribute-value contains a non-DIGIT character, ignore the cookie-av.
     if !attribute.chars().all(|char| char.is_ascii_digit()) {
         return None;
     }

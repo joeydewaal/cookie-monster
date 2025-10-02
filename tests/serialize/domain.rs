@@ -26,3 +26,20 @@ fn domain() {
         Ok("foo=bar")
     );
 }
+
+#[test]
+fn domain_matching() {
+    assert_eq!(
+        Cookie::build("foo", "bar").domain("rust-lang.com"),
+        Cookie::build("foo", "bar").domain("rust-lang.com"),
+    );
+    assert_eq!(
+        Cookie::build("foo", "bar").domain("rust-lang.com"),
+        Cookie::build("foo", "bar").domain("RUST-LANG.COM"),
+    );
+
+    assert_eq!(
+        Cookie::build("foo", "bar").domain("rust-lang.com"),
+        Cookie::build("foo", "bar").domain(".rust-lang.com"),
+    );
+}

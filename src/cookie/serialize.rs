@@ -48,7 +48,7 @@ impl Cookie {
             write!(&mut buf, "{max_age}").expect("Failed to write Max-Age seconds");
         }
 
-        self.serialize_domain(&mut buf)?;
+        self.serialize_domain(&mut buf);
 
         self.serialize_path(&mut buf)?;
 

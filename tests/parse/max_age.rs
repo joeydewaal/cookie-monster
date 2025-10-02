@@ -29,16 +29,14 @@ fn max_age() {
 
 #[test]
 fn invalid_max_age() {
-    let cookie = || {
-        Ok(Cookie::build("foo", "bar")
-            .max_age(Duration::from_secs(10))
-            .build())
-    };
+    let cookie = || Ok(Cookie::new("foo", "bar"));
 
-    assert_eq_parse!("foo=bar; Max-Age=abc", Ok(Cookie::new("foo", "bar")));
+    assert_eq_parse!("foo=bar; Max-Age=+0", cookie());
+    assert_eq_parse!("foo=bar; Max-Age=abc", cookie());
     assert_eq_parse!("foo=bar; Max-Age=+10", cookie());
-    assert_eq_parse!("foo=bar; Max-Age=-+1", Ok(Cookie::new("foo", "bar")));
-    assert_eq_parse!("foo=bar; Max-Age=", Ok(Cookie::new("foo", "bar")));
+    assert_eq_parse!("foo=bar; Max-Age=-+1", cookie());
+    assert_eq_parse!("foo=bar; Max-Age=012abc", cookie());
+    assert_eq_parse!("foo=bar; Max-Age=", cookie());
 
     let cookie = || {
         Ok(Cookie::build("foo", "bar")

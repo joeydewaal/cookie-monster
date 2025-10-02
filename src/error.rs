@@ -12,4 +12,8 @@ pub enum Error {
 
     // cookie-value
     InvalidAttribute,
+
+    // Path
+    InvalidPathValue,
+    EmptyPathValue,
 }

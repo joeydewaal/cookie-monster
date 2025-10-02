@@ -8,6 +8,7 @@ use crate::Cookie;
 
 use super::{expires::Expires, same_site::SameSite};
 
+#[derive(PartialEq)]
 pub struct CookieBuilder(Cookie);
 
 impl CookieBuilder {

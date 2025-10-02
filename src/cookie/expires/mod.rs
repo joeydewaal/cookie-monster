@@ -21,12 +21,8 @@ pub mod formats {
     pub static FMT4: &str = "%a, %d-%b-%Y %H:%M:%S GMT";
 }
 
-#[allow(unused)]
 #[derive(Clone, Default)]
-pub struct Expires(Inner);
-
-#[derive(Clone, Default)]
-pub(crate) enum Inner {
+pub enum Expires {
     // So a user can still remove a cookie without needing any of the datetime features.
     Remove,
     // No expiry time.
@@ -44,43 +40,54 @@ pub(crate) enum Inner {
 
 impl Expires {
     pub fn remove() -> Self {
-        Self(Inner::Remove)
+        Self::Remove
     }
 }
 
 pub fn parse_expires(_value: &str) -> Expires {
-    Expires(Inner::Exp {
+    Expires::Exp {
         #[cfg(feature = "time")]
         time: dep_time::parse_expires_time(_value),
         #[cfg(feature = "chrono")]
         chrono: dep_chrono::parse_expires(_value),
         #[cfg(feature = "jiff")]
         jiff: dep_jiff::parse_expires(_value),
-    })
+    }
 }
 
 impl Cookie {
     #[allow(clippy::ptr_arg)]
     pub fn serialize_expire(&self, buf: &mut String) -> crate::Result<()> {
         match self.expires {
+            Expires::Exp {
+                #[cfg(feature = "jiff")]
+                    jiff: Some(_),
+                #[cfg(feature = "chrono")]
+                    chrono: Some(_),
+                #[cfg(feature = "time")]
+                    time: Some(_),
+            } => {
+                panic!("testing");
+            }
             #[cfg(feature = "time")]
-            Expires(Inner::Exp { time: Some(t), .. }) => {
+            Expires::Exp { time: Some(t), .. } => {
                 return dep_time::ser_expires(t, buf);
             }
             #[cfg(feature = "chrono")]
-            Expires(Inner::Exp {
+            Expires::Exp {
                 chrono: Some(c), ..
-            }) => {
+            } => {
                 return dep_chrono::ser_expires(c, buf);
             }
             #[cfg(feature = "jiff")]
-            Expires(Inner::Exp { jiff: Some(j), .. }) => {
+            Expires::Exp { jiff: Some(j), .. } => {
                 return dep_jiff::ser_expires(j, buf);
             }
-            Expires(Inner::Remove) => {
+            Expires::Remove => {
                 buf.push_str("; Expires=Thu, 01 Jan 1970 00:00:00 GMT");
                 Ok(())
             }
+
             _ => Ok(()),
         }
     }

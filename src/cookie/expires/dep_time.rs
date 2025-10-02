@@ -5,7 +5,7 @@ use time::{
 
 use crate::Cookie;
 
-use super::{Expires, Inner};
+use super::Expires;
 
 static FMT1: &[FormatItem<'_>] = format_description!(
     "[weekday repr:short], [day] [month repr:short] [year padding:none] [hour]:[minute]:[second] GMT"
@@ -24,20 +24,20 @@ impl From<OffsetDateTime> for Expires {
     fn from(value: OffsetDateTime) -> Self {
         // The expires hear cannot be above 9999 years but this is also the upper bound of
         // `time::OffsetDateTime`.
-        Self(Inner::Exp {
+        Self::Exp {
             time: Some(value),
             #[cfg(feature = "chrono")]
             chrono: None,
             #[cfg(feature = "jiff")]
             jiff: None,
-        })
+        }
     }
 }
 
 impl Cookie {
     pub fn expires_time(&self) -> Option<&OffsetDateTime> {
         match &self.expires {
-            Expires(Inner::Exp { time, .. }) => time.as_ref(),
+            Expires::Exp { time, .. } => time.as_ref(),
             _ => None,
         }
     }

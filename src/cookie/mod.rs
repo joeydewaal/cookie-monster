@@ -10,14 +10,13 @@ mod expires;
 mod max_age;
 mod parse;
 mod path;
-mod same_site;
+pub(crate) mod same_site;
 mod serialize;
 
 pub use builder::CookieBuilder;
 use expires::Expires;
-use same_site::SameSite;
 
-use crate::util::TinyStr;
+use crate::{SameSite, util::TinyStr};
 
 #[derive(Default, Clone)]
 pub struct Cookie {
@@ -106,7 +105,12 @@ impl Cookie {
 
     #[inline]
     pub fn set_max_age(&mut self, max_age: Duration) {
-        self.max_age = Some(max_age.as_secs());
+        self.set_max_age_secs(max_age.as_secs());
+    }
+
+    #[inline]
+    pub fn set_max_age_secs(&mut self, max_age_secs: u64) {
+        self.max_age = Some(max_age_secs);
     }
 
     #[inline]
@@ -119,6 +123,10 @@ impl Cookie {
         self.domain
             .as_ref()
             .map(|s| s.as_str(self.raw_value.as_deref()))
+    }
+
+    pub(crate) fn domain_sanitized(&self) -> Option<&str> {
+        self.domain().map(|d| d.strip_prefix('.').unwrap_or(d))
     }
 
     #[inline]
@@ -243,7 +251,7 @@ impl PartialEq<Cookie> for Cookie {
 
         // TODO: add support for expires here
 
-        if !opt_str_eq(self.domain(), other.domain()) {
+        if !opt_str_eq(self.domain_sanitized(), other.domain_sanitized()) {
             return false;
         }
 
@@ -258,7 +266,7 @@ impl PartialEq<Cookie> for Cookie {
 fn opt_str_eq(left: Option<&str>, right: Option<&str>) -> bool {
     match (left, right) {
         (None, None) => true,
-        (Some(l), Some(r)) => l == r,
+        (Some(l), Some(r)) => l.eq_ignore_ascii_case(r),
         _ => false,
     }
 }

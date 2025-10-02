@@ -6,7 +6,7 @@ use chrono::{
 use crate::{Cookie, Error};
 
 use super::{
-    Expires, Inner,
+    Expires,
     formats::{FMT1, FMT2, FMT3, FMT4},
 };
 
@@ -25,20 +25,20 @@ static MAX_EXPIRES: DateTime<Utc> = NaiveDateTime::new(
 
 impl From<DateTime<Utc>> for Expires {
     fn from(value: DateTime<Utc>) -> Self {
-        Self(Inner::Exp {
+        Self::Exp {
             #[cfg(feature = "time")]
             time: None,
             chrono: Some(std::cmp::min(value, MAX_EXPIRES)),
             #[cfg(feature = "jiff")]
             jiff: None,
-        })
+        }
     }
 }
 
 impl Cookie {
     pub fn expires_chrono(&self) -> Option<&DateTime<Utc>> {
         match &self.expires {
-            Expires(Inner::Exp { chrono, .. }) => chrono.as_ref(),
+            Expires::Exp { chrono, .. } => chrono.as_ref(),
             _ => None,
         }
     }

@@ -5,27 +5,27 @@ use jiff::{Timestamp, fmt::strtime::BrokenDownTime, tz::Offset};
 use crate::{Cookie, CookieBuilder, Error};
 
 use super::{
-    Expires, Inner,
+    Expires,
     formats::{FMT1, FMT2, FMT3, FMT4},
 };
 
 impl From<Timestamp> for Expires {
     fn from(value: Timestamp) -> Self {
-        Self(Inner::Exp {
+        Self::Exp {
             #[cfg(feature = "time")]
             time: None,
             #[cfg(feature = "chrono")]
             chrono: None,
             #[cfg(feature = "jiff")]
             jiff: Some(value),
-        })
+        }
     }
 }
 
 impl Cookie {
     pub fn expires_jiff(&self) -> Option<&Timestamp> {
         match &self.expires {
-            Expires(Inner::Exp { jiff, .. }) => jiff.as_ref(),
+            Expires::Exp { jiff, .. } => jiff.as_ref(),
             _ => None,
         }
     }

@@ -9,10 +9,12 @@ fn path() {
         Ok("foo=bar; Path=/home")
     );
 
-    assert_eq_ser!(Cookie::build("foo", "bar").path("").build(), Ok("foo=bar"));
-
     assert_eq_ser!(
         Cookie::build("foo", "bar").path("home").build(),
-        Err(&Error::InvalidAttribute)
+        Err(&Error::InvalidPathValue)
+    );
+    assert_eq_ser!(
+        Cookie::build("foo", "bar").path("").build(),
+        Err(&Error::EmptyPathValue)
     );
 }
