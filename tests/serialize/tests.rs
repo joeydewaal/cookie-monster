@@ -8,4 +8,5 @@ mod max_age;
 mod name_value;
 mod partitioned;
 mod path;
+mod same_site;
 mod secure;

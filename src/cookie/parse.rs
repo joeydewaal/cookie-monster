@@ -1,3 +1,4 @@
+use crate::SameSite;
 use crate::{Cookie, error::Error, util::TinyStr};
 
 use super::expires;
@@ -108,6 +109,7 @@ fn parse_attributes(cookie: &mut Cookie, mut parts: SplitMut) -> crate::Result<(
             ("domain", Some(value)) => cookie.domain = parse_domain(value, parts.ptr),
             ("path", Some(value)) => cookie.path = parse_path(value, parts.ptr),
             ("expires", Some(value)) => cookie.expires = expires::parse_expires(value),
+            ("samesite", Some(value)) => cookie.same_site = SameSite::from_attribute_value(value),
             _ => continue,
         }
     }

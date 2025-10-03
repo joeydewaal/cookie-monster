@@ -245,6 +245,7 @@ impl PartialEq<Cookie> for Cookie {
             || self.http_only() != other.http_only()
             || self.partitioned() != other.partitioned()
             || self.max_age() != other.max_age()
+            || self.same_site() != other.same_site()
         {
             return false;
         }

@@ -1,4 +1,4 @@
-use crate::Error;
+use crate::{Error, SameSite};
 
 use super::{Cookie, parse::invalid_cookie_value};
 use std::fmt::Write;
@@ -35,6 +35,8 @@ impl Cookie {
             + domain.map(str::len).unwrap_or_default()
             + path.map(str::len).unwrap_or_default();
 
+        // 110 is derived from typical length of cookie attributes
+        // see RFC 6265 Sec 4.1.
         let mut buf = String::with_capacity(buf_len + 110);
 
         buf.push_str(name);
@@ -52,8 +54,8 @@ impl Cookie {
 
         self.serialize_path(&mut buf)?;
 
-        // Partitioned cookies need the Secure attribute
-        if self.secure() || self.partitioned() {
+        // SameSite=None and Partitioned cookies need the Secure attribute
+        if self.secure() || self.partitioned() || self.same_site() == Some(SameSite::None) {
             buf.push_str("; Secure");
         }
 
@@ -64,6 +66,8 @@ impl Cookie {
         if self.partitioned() {
             buf.push_str("; Partitioned");
         }
+
+        self.serialize_same_site(&mut buf);
 
         self.serialize_expire(&mut buf)?;
         Ok(buf)

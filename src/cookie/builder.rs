@@ -95,9 +95,8 @@ impl CookieBuilder {
     //
     // https://developer.mozilla.org/en-US/docs/Web/Privacy/Guides/Privacy_sandbox/Partitioned_cookies
     #[inline]
-    pub fn partitioned(mut self) -> Self {
-        self.0.set_partitioned(true);
-        self.secure()
+    pub fn partitioned(self) -> Self {
+        self.set_partitioned(true)
     }
 
     #[inline]
