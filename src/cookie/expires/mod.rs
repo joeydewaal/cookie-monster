@@ -12,13 +12,13 @@ pub mod dep_jiff;
 #[cfg(any(feature = "chrono", feature = "jiff"))]
 pub mod formats {
     // Sun, 06 Nov 1994 08:49:37 GMT (RFC)
-    pub static FMT1: &str = "%a, %d %b %Y %H:%M:%S GMT";
+    pub static FMT1: &str = "%a, %d %b %Y %T GMT";
     // Sunday, 06-Nov-94 08:49:37 GMT (RFC)
-    pub static FMT2: &str = "%A, %d-%b-%y %H:%M:%S GMT";
+    pub static FMT2: &str = "%A, %d-%b-%y %T GMT";
     // Sun Nov  6 08:49:37 1994 (RFC)
-    pub static FMT3: &str = "%a %b %e %H:%M:%S %Y";
+    pub static FMT3: &str = "%a %b %e %T %Y";
     // Thu, 10-Sep-2069 20:00:00 GMT
-    pub static FMT4: &str = "%a, %d-%b-%Y %H:%M:%S GMT";
+    pub static FMT4: &str = "%a, %d-%b-%Y %T GMT";
 }
 
 #[derive(Clone, Default)]
