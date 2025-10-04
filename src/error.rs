@@ -27,7 +27,7 @@ impl Display for Error {
             Error::NameEmpty => "The cookie name is empty",
             Error::InvalidName => "The cookie name contains an invalid character",
             Error::InvalidValue => "The cookie value contains an invalid value",
-            Error::ExpiresFmt => "TODO",
+            Error::ExpiresFmt => "Failed to format the expires value",
             Error::PercentDecodeError => "An error occured while decoding",
             Error::InvalidPathValue => "The path attribute contains an invalid value",
             Error::EmptyPathValue => "The path attribute is empty",

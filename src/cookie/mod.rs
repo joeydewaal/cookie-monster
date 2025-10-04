@@ -249,11 +249,10 @@ impl PartialEq<Cookie> for Cookie {
             || self.partitioned() != other.partitioned()
             || self.max_age() != other.max_age()
             || self.same_site() != other.same_site()
+            || self.expires != other.expires
         {
             return false;
         }
-
-        // TODO: add support for expires here
 
         if !opt_str_eq(self.domain_sanitized(), other.domain_sanitized()) {
             return false;

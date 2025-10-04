@@ -1,6 +1,6 @@
 # cookie-monster
 
-### Supported attributes
+### Supported
 * MaxAge
 * Domain
 * Path
@@ -10,7 +10,4 @@
 * SameSite
 * Expires
     * Enable one of the ["jiff", "chrono", "time"] flags.
-
-### Todo
-* Jars
-* Encrypted Jars
+* Percent encoding

@@ -80,6 +80,33 @@ impl Cookie {
     }
 }
 
+impl PartialEq for Expires {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Expires::Remove, Expires::Remove) => true,
+            (Expires::Session, Expires::Session) => true,
+            (Expires::Exp(_s), Expires::Exp(_o)) => {
+                #[cfg(feature = "time")]
+                if _s.time == _o.time {
+                    return true;
+                }
+
+                #[cfg(feature = "chrono")]
+                if _s.chrono == _o.chrono {
+                    return true;
+                }
+                #[cfg(feature = "jiff")]
+                if _s.jiff == _o.jiff {
+                    return true;
+                }
+
+                false
+            }
+            _ => false,
+        }
+    }
+}
+
 #[cfg(test)]
 pub mod test_cases {
     #[allow(unused)]
