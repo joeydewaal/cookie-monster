@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::SameSite;
 use crate::{Cookie, error::Error, util::TinyStr};
 
@@ -22,10 +24,23 @@ impl Cookie {
     ///
     /// *Secure,HttpOnly,Partitioned*
     pub fn parse(string: impl Into<Box<str>>) -> Result<Cookie, Error> {
-        Self::parse_inner(string.into())
+        Self::parse_inner(string, |name, value| {
+            Ok((Cow::Borrowed(name), Cow::Borrowed(value)))
+        })
     }
 
-    fn parse_inner(mut string: Box<str>) -> Result<Cookie, Error> {
+    #[cfg(feature = "percent-encode")]
+    pub fn parse_encoded(string: impl Into<Box<str>>) -> Result<Cookie, Error> {
+        use crate::cookie::encoding;
+
+        Self::parse_inner(string, encoding::decode_name_value)
+    }
+
+    fn parse_inner(
+        string: impl Into<Box<str>>,
+        callback: impl for<'a> Fn(&'a str, &'a str) -> crate::Result<(Cow<'a, str>, Cow<'a, str>)>,
+    ) -> Result<Cookie, Error> {
+        let mut string = string.into();
         let mut parts = SplitMut::new(&mut string);
 
         let name_value = parts.next().expect("First split always returns something");
@@ -44,21 +59,21 @@ impl Cookie {
         // 5.  If the name string is empty, ignore the set-cookie-string entirely.
         if name.is_empty() {
             return Err(Error::NameEmpty);
-        } else if invalid_cookie_value(name) {
+        } else if !is_token(name) {
             return Err(Error::InvalidName);
         }
 
         // Remove optional brackets.
-        if value.len() > 1 && value.starts_with('"') && value.ends_with('"') {
-            value = &value[1..(value.len() - 1)];
-        }
+        value = trim_quotes(value);
 
-        if invalid_cookie_value(value) {
+        if !is_valid_cookie_value(value) {
             return Err(Error::InvalidValue);
         }
 
-        let name = TinyStr::index(name, parts.ptr);
-        let value = TinyStr::index(value, parts.ptr);
+        let (name, value) = callback(name, value)?;
+
+        let name = TinyStr::from_cow_ref(name, parts.ptr);
+        let value = TinyStr::from_cow_ref(value, parts.ptr);
 
         let mut cookie = Cookie::new_inner(name, value);
 
@@ -163,37 +178,6 @@ pub fn trim_mut(mut str: &mut str) -> &mut str {
     &mut str[..end]
 }
 
-// set-cookie-header = "Set-Cookie:" SP set-cookie-string
-// set-cookie-string = cookie-pair *( ";" SP cookie-av )
-// cookie-pair       = cookie-name "=" cookie-value
-// cookie-name       = token
-// cookie-value      = *cookie-octet / ( DQUOTE *cookie-octet DQUOTE )
-// cookie-octet      = %x21 / %x23-2B / %x2D-3A / %x3C-5B / %x5D-7E
-//                       ; US-ASCII characters excluding CTLs,
-//                       ; whitespace DQUOTE, comma, semicolon,
-//                       ; and backslash
-// token             = <token, defined in [RFC2616], Section 2.2>
-
-// cookie-av         = expires-av / max-age-av / domain-av /
-//                     path-av / secure-av / httponly-av /
-//                     extension-av
-// expires-av        = "Expires=" sane-cookie-date
-// sane-cookie-date  = <rfc1123-date, defined in [RFC2616], Section 3.3.1>
-// max-age-av        = "Max-Age=" non-zero-digit *DIGIT
-//                       ; In practice, both expires-av and max-age-av
-//                       ; are limited to dates representable by the
-//                       ; user agent.
-// non-zero-digit    = %x31-39
-//                       ; digits 1 through 9
-// domain-av         = "Domain=" domain-value
-// domain-value      = <subdomain>
-//                       ; defined in [RFC1034], Section 3.5, as
-//                       ; enhanced by [RFC1123], Section 2.1
-// path-av           = "Path=" path-value
-// path-value        = <any CHAR except CTLs or ";">
-// secure-av         = "Secure"
-// httponly-av       = "HttpOnly"
-// extension-av      = <any CHAR except CTLs or ";">
 #[inline]
 fn allowed_cookie_value(val: char) -> bool {
     match val {
@@ -203,9 +187,27 @@ fn allowed_cookie_value(val: char) -> bool {
     }
 }
 
+pub fn trim_quotes(value: &str) -> &str {
+    if value.len() > 1 && value.starts_with('"') && value.ends_with('"') {
+        &value[1..(value.len() - 1)]
+    } else {
+        value
+    }
+}
+
 #[inline]
-pub fn invalid_cookie_value(cookie: &str) -> bool {
-    !cookie.chars().all(allowed_cookie_value)
+pub fn is_token(val: &str) -> bool {
+    val.chars().all(|c| match c {
+        '!' | '#' | '$' | '%' | '&' | '\'' | '*' | '+' | '-' | '.' | '^' | '_' | '`' | '|'
+        | '~' => true,
+        c if c.is_alphanumeric() => true,
+        _ => false,
+    })
+}
+
+#[inline]
+pub fn is_valid_cookie_value(val: &str) -> bool {
+    val.chars().all(allowed_cookie_value)
 }
 
 #[cfg(test)]

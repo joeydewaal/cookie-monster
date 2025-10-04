@@ -13,6 +13,9 @@ mod path;
 pub(crate) mod same_site;
 mod serialize;
 
+#[cfg(feature = "percent-encode")]
+mod encoding;
+
 pub use builder::CookieBuilder;
 use expires::Expires;
 

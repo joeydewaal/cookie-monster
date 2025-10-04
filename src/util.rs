@@ -28,6 +28,13 @@ impl TinyStr {
     pub fn empty() -> TinyStr {
         TinyStr::Static("")
     }
+
+    pub(crate) fn from_cow_ref<'a>(value: Cow<'a, str>, ptr: *const u8) -> Self {
+        match value {
+            Cow::Borrowed(b) => TinyStr::index(b, ptr),
+            Cow::Owned(o) => TinyStr::from(o),
+        }
+    }
 }
 
 impl<T> From<T> for TinyStr

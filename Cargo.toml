@@ -5,10 +5,7 @@ authors = ["Joey de Waal <dewaaljoey@gmail.com>"]
 edition = "2024"
 license = "MIT"
 readme = "README.md"
-description = """
-HTTP cookie parsing and cookie jar management. Supports signed and private
-(encrypted, authenticated) jars.
-"""
+description = "HTTP cookie parsing and cookie jar management."
 
 [features]
 percent-encode = ["dep:percent-encoding"]

@@ -1,6 +1,6 @@
-use crate::util::TinyStr;
+use crate::{cookie::parse::is_valid_cookie_value, util::TinyStr};
 
-use super::{Cookie, parse::invalid_cookie_value};
+use super::Cookie;
 
 pub fn parse_domain(domain: &mut str, src: *const u8) -> Option<TinyStr> {
     // If the attribute-value is empty, the behavior is undefined.  However,
@@ -15,7 +15,7 @@ pub fn parse_domain(domain: &mut str, src: *const u8) -> Option<TinyStr> {
 
     // We're conservative here and don't allow invalid cookie characters. If you think we
     // should, please open an issue.
-    if invalid_cookie_value(domain) {
+    if !is_valid_cookie_value(domain) {
         return None;
     }
 
@@ -51,7 +51,7 @@ impl Cookie {
 
         // We're a bit conservative here and ignore domains that contain invalid cookie characters.
         // This makes the cookie a host-only cookie.
-        if invalid_cookie_value(domain) {
+        if !is_valid_cookie_value(domain) {
             return;
         }
 

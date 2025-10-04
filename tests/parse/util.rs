@@ -6,20 +6,15 @@ macro_rules! assert_eq_parse {
 }
 
 #[macro_export]
-macro_rules! assert_ne_parse {
+macro_rules! assert_eq_parse_enc {
     ($string:expr, $cookie:expr) => {
-        assert_ne!(Cookie::parse($string), $cookie, "parse went wrong");
+        assert_eq!(Cookie::parse_encoded($string), $cookie, "parse went wrong");
     };
 }
 
 #[macro_export]
-macro_rules! assert_eq_ser {
-    ($cookie:expr, $expected:expr) => {
-        let ser = match $cookie.build().serialize() {
-            Ok(cookie) => cookie,
-            Err(e) => panic!("Failed to serialize {:?}: {:?}", $cookie, e),
-        };
-
-        assert_eq!(ser, $expected);
+macro_rules! assert_ne_parse {
+    ($string:expr, $cookie:expr) => {
+        assert_ne!(Cookie::parse($string), $cookie, "parse went wrong");
     };
 }

@@ -10,3 +10,6 @@ mod partitioned;
 mod path;
 mod same_site;
 mod secure;
+
+#[cfg(feature = "percent-encode")]
+mod encoded;

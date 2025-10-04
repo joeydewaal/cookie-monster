@@ -1,14 +1,44 @@
-use crate::{Error, SameSite};
+use crate::{
+    Error, SameSite,
+    cookie::parse::{is_token, is_valid_cookie_value, trim_quotes},
+};
 
-use super::{Cookie, parse::invalid_cookie_value};
+use super::Cookie;
 use std::fmt::Write;
 
 impl Cookie {
     pub fn serialize(&self) -> crate::Result<String> {
-        self.serialize_inner()
+        self.serialize_inner(|name, value, buf| {
+            // Unencdoded values need manual validation of the characters.
+
+            let trimmed_value = trim_quotes(value);
+
+            if !is_valid_cookie_value(trimmed_value) {
+                return Err(Error::InvalidValue);
+            } else if !is_token(name) {
+                return Err(Error::InvalidName);
+            }
+
+            let _ = write!(buf, "{name}={value}");
+            Ok(())
+        })
     }
 
-    fn serialize_inner(&self) -> crate::Result<String> {
+    #[cfg(feature = "percent-encode")]
+    pub fn serialize_encoded(&self) -> crate::Result<String> {
+        use crate::cookie::encoding::{encode_name, encode_value};
+
+        self.serialize_inner(|name, value, buf| {
+            // Encoded values don't require validation since the invalid characters are encoded.
+            let _ = write!(buf, "{}={}", encode_name(name), encode_value(value));
+            Ok(())
+        })
+    }
+
+    fn serialize_inner(
+        &self,
+        callback: impl Fn(&str, &str, &mut String) -> crate::Result<()>,
+    ) -> crate::Result<String> {
         let value = self.value();
         let name = self.name();
         let domain = self.domain();
@@ -16,18 +46,6 @@ impl Cookie {
 
         if name.is_empty() {
             return Err(Error::NameEmpty);
-        } else if invalid_cookie_value(name) {
-            return Err(Error::InvalidName);
-        }
-
-        let value_to_check = if value.len() > 1 && value.starts_with('"') && value.ends_with('"') {
-            &value[1..(value.len() - 1)]
-        } else {
-            value
-        };
-
-        if invalid_cookie_value(value_to_check) {
-            return Err(Error::InvalidValue);
         }
 
         let buf_len = name.len()
@@ -39,12 +57,11 @@ impl Cookie {
         // see RFC 6265 Sec 4.1.
         let mut buf = String::with_capacity(buf_len + 110);
 
-        buf.push_str(name);
-        buf.push('=');
-        buf.push_str(value);
+        // Write name and value
+        // Validation happens in the callback.
+        callback(name, value, &mut buf)?;
 
         // Expires
-
         if let Some(max_age) = self.max_age_secs() {
             buf.push_str("; Max-Age=");
             write!(&mut buf, "{max_age}").expect("Failed to write Max-Age seconds");

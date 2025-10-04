@@ -62,13 +62,8 @@ fn name_value_brackets_spaces_not_eq() {
     assert_ne_parse!("foo=bar", Ok(Cookie::new("foo", "\"bar\"")));
 }
 
-// #[test]
-// fn odd_characters_encoded() {
-//     let expected = Cookie::new("foo", "b/r");
-//     let cookie = match Cookie::parse_encoded("foo=b%2Fr") {
-//         Ok(cookie) => cookie,
-//         Err(e) => panic!("Failed to parse: {:?}", e)
-//     };
-
-//     assert_eq!(cookie, expected);
-// }
+#[test]
+fn invalid() {
+    assert_eq_parse!("foo=bar)", Ok(Cookie::new("foo", "bar)")));
+    assert_eq_parse!("foo)=bar", Err(Error::InvalidName));
+}
