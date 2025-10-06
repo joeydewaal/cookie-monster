@@ -1,3 +1,5 @@
+use std::fmt::{Debug, Write};
+
 use super::Cookie;
 
 #[cfg(feature = "time")]
@@ -8,6 +10,8 @@ pub mod dep_chrono;
 
 #[cfg(feature = "jiff")]
 pub mod dep_jiff;
+
+const REMOVE: &str = "Thu, 01 Jan 1970 00:00:00 GMT";
 
 #[cfg(any(feature = "chrono", feature = "jiff"))]
 pub mod formats {
@@ -71,7 +75,7 @@ impl Cookie {
             #[cfg(feature = "jiff")]
             Expires::Exp(ExpVal { jiff: Some(j), .. }) => dep_jiff::ser_expires(j, buf),
             Expires::Remove => {
-                buf.push_str("; Expires=Thu, 01 Jan 1970 00:00:00 GMT");
+                let _ = write!(buf, "; Expires={REMOVE}");
                 Ok(())
             }
 
@@ -103,6 +107,29 @@ impl PartialEq for Expires {
                 false
             }
             _ => false,
+        }
+    }
+}
+
+impl Debug for Expires {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Remove => write!(f, "{REMOVE}"),
+            Self::Session => write!(f, "Session"),
+            Self::Exp(_exp) => {
+                let mut debug = f.debug_struct("Exp");
+
+                #[cfg(feature = "time")]
+                let debug = debug.field("expires_time", &_exp.time);
+
+                #[cfg(feature = "chrono")]
+                let debug = debug.field("expires_chrono", &_exp.chrono);
+
+                #[cfg(feature = "jiff")]
+                let debug = debug.field("expires_jiff", &_exp.jiff);
+
+                debug.finish()
+            }
         }
     }
 }

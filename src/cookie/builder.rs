@@ -43,6 +43,13 @@ impl CookieBuilder {
 
     // Sets the Max-Age attribute of the cookie.
     #[inline]
+    pub fn max_age_secs(mut self, max_age_secs: u64) -> Self {
+        self.0.set_max_age_secs(max_age_secs);
+        self
+    }
+
+    // Sets the Max-Age attribute of the cookie.
+    #[inline]
     pub fn max_age(mut self, max_age: Duration) -> Self {
         self.0.set_max_age(max_age);
         self

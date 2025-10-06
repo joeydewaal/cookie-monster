@@ -33,3 +33,8 @@ path = "tests/parse/tests.rs"
 [[test]]
 name = "serialize"
 path = "tests/serialize/tests.rs"
+
+# Jar tests
+[[test]]
+name = "jar"
+path = "tests/jar.rs"

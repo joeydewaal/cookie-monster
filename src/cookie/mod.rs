@@ -52,7 +52,14 @@ impl Cookie {
     where
         N: Into<Cow<'static, str>>,
     {
-        Cookie::build(name, "").expires(Expires::remove()).build()
+        Cookie::new(name, "").into_remove()
+    }
+
+    pub(crate) fn into_remove(mut self) -> Self {
+        self.set_expires(Expires::remove());
+        self.set_max_age_secs(0);
+        self.set_value("");
+        self
     }
 
     fn new_inner(name: TinyStr, value: TinyStr) -> Cookie {
@@ -219,24 +226,14 @@ impl Debug for Cookie {
         debug
             .field("name", &self.name())
             .field("value", &self.value())
-            // .field("expires", &self.expires)
             .field("max_age", &self.max_age())
             .field("domain", &self.domain())
             .field("path", &self.path())
             .field("secure", &self.secure())
             .field("http_only", &self.http_only())
-            .field("partitioned", &self.partitioned());
-
-        #[cfg(feature = "time")]
-        let debug = debug.field("expires_time", &self.expires_time());
-
-        #[cfg(feature = "chrono")]
-        let debug = debug.field("expires_chrono", &self.expires_chrono());
-
-        #[cfg(feature = "jiff")]
-        let debug = debug.field("expires_jiff", &self.expires_jiff());
-
-        debug.finish()
+            .field("partitioned", &self.partitioned())
+            .field("expires", &self.expires)
+            .finish()
     }
 }
 
