@@ -1,6 +1,6 @@
 use std::fmt::Write;
 
-use jiff::{Timestamp, Zoned, fmt::strtime::BrokenDownTime, tz::Offset};
+use jiff::{Span, Timestamp, Zoned, fmt::strtime::BrokenDownTime, tz::Offset};
 
 use crate::{Cookie, CookieBuilder, Error, cookie::expires::ExpVal};
 
@@ -33,6 +33,12 @@ impl Cookie {
             Expires::Exp(ExpVal { jiff, .. }) => jiff.as_ref(),
             _ => None,
         }
+    }
+}
+
+impl Expires {
+    pub(crate) fn remove_jiff() -> Self {
+        Self::from(&Zoned::now() - Span::new().years(1))
     }
 }
 

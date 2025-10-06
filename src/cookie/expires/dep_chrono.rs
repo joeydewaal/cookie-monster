@@ -1,5 +1,5 @@
 use chrono::{
-    DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc,
+    DateTime, Duration, NaiveDate, NaiveDateTime, NaiveTime, Utc,
     format::{Parsed, StrftimeItems},
 };
 
@@ -40,6 +40,13 @@ impl Cookie {
         }
     }
 }
+
+impl Expires {
+    pub(crate) fn remove_chrono() -> Self {
+        Self::from(Utc::now() - Duration::days(365))
+    }
+}
+
 pub(super) fn ser_expires(expires: DateTime<Utc>, buf: &mut String) -> crate::Result<()> {
     buf.push_str("; Expires=");
 

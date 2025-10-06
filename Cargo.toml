@@ -20,7 +20,7 @@ percent-encoding = { version = "2.3.1", optional = true }
 
 # Expires
 time = { version = "0.3",  features = ["std", "parsing", "formatting", "macros"], default-features = false, optional = true }
-chrono = { version = "0.4", default-features = false, features = ["std"], optional = true }
+chrono = { version = "0.4", default-features = false, features = ["std", "now"], optional = true }
 jiff = { version = "0.2.15", optional = true }
 
 

@@ -1,5 +1,5 @@
 use time::{
-    OffsetDateTime, PrimitiveDateTime, UtcOffset, format_description::FormatItem,
+    Duration, OffsetDateTime, PrimitiveDateTime, UtcOffset, format_description::FormatItem,
     macros::format_description, parsing::Parsable,
 };
 
@@ -39,6 +39,13 @@ impl Cookie {
         }
     }
 }
+
+impl Expires {
+    pub(crate) fn remove_time() -> Self {
+        Self::from(OffsetDateTime::now_utc() - Duration::days(365))
+    }
+}
+
 pub(super) fn ser_expires(expires: OffsetDateTime, buf: &mut String) -> crate::Result<()> {
     let expires = expires
         .to_offset(UtcOffset::UTC)

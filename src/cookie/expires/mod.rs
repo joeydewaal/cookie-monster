@@ -47,6 +47,17 @@ pub struct ExpVal {
 
 impl Expires {
     pub fn remove() -> Self {
+        #![allow(unreachable_code)]
+
+        #[cfg(feature = "jiff")]
+        return Self::remove_jiff();
+
+        #[cfg(feature = "chrono")]
+        return Self::remove_chrono();
+
+        #[cfg(feature = "time")]
+        return Self::remove_time();
+
         Self::Remove
     }
 }
