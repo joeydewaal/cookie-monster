@@ -3,7 +3,7 @@ use cookie_monster::{Cookie, CookieJar};
 #[test]
 fn basic_jar() {
     let header = "sessionId=abc123def456; userId=12345; theme=dark; lang=en-US; authenticated=true";
-    let jar = CookieJar::from_header_value(header);
+    let jar = CookieJar::from_encoded_cookie(header);
 
     let session_id = Cookie::new("sessionId", "abc123def456");
     assert_eq!(jar.get("sessionId"), Some(&session_id));
@@ -21,7 +21,7 @@ fn basic_jar() {
 #[test]
 fn round_trip() {
     let header = "sessionId=abc123def456; userId=12345; theme=dark; lang=en-US; authenticated=true";
-    let jar = CookieJar::from_header_value(header);
+    let jar = CookieJar::from_encoded_cookie(header);
 
     let mut set_cookie = jar.set_cookie_headers();
 
@@ -31,7 +31,7 @@ fn round_trip() {
 #[test]
 fn round_trip_add() {
     let header = "sessionId=abc123def456; userId=12345; theme=dark; lang=en-US; authenticated=true";
-    let mut jar = CookieJar::from_header_value(header);
+    let mut jar = CookieJar::from_encoded_cookie(header);
 
     jar.add(Cookie::new("sessionId", "abc"));
 
@@ -43,7 +43,7 @@ fn round_trip_add() {
 #[test]
 fn basic_remove() {
     let header = "theme=dark";
-    let mut jar = CookieJar::from_header_value(header);
+    let mut jar = CookieJar::from_encoded_cookie(header);
 
     jar.remove(Cookie::new("theme", ""));
 

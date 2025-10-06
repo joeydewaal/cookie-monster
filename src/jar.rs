@@ -65,8 +65,15 @@ impl CookieJar {
 
     /// Parses the given `Set-Cookie` header value and return a `CookieJar`. Ignores cookies that
     /// were not able to be parsed.
-    pub fn from_header_value(header: &str) -> Self {
-        Self::from_original(header.split(';').map(Cookie::parse).flatten())
+    pub fn from_cookie(header: &str) -> Self {
+        Self::from_original(header.split(';').flat_map(Cookie::parse_cookie))
+    }
+
+    /// Parses the given `Set-Cookie` header value and return a `CookieJar`. Ignores cookies that
+    /// were not able to be parsed.
+    #[cfg(feature = "percent-encode")]
+    pub fn from_encoded_cookie(header: &str) -> Self {
+        Self::from_original(header.split(';').flat_map(Cookie::parse_cookie_encoded))
     }
 
     /// Adds an __original__ cookie to the jar. These are never sent back to the

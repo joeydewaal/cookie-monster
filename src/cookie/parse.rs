@@ -7,38 +7,40 @@ use super::expires;
 use super::{domain::parse_domain, max_age::parse_max_age, path::parse_path};
 
 impl Cookie {
-    /// Follows RFC 6265  but less strict, this means:
-    /// Characters that are not allowed in the name, value(e.g. ascii control characters and
-    /// spaces...) return an error. But invalid characters in attribute name/values are ignored.
-    ///
-    /// *Expires*
-    ///
-    /// *Max-Age*
-    /// if a '+' is found the max-age value is still parsed.
-    ///
-    /// *Domain*
-    /// An empty domain is ignored.
-    ///
-    /// *Path*
-    /// An empty path is ignored.
-    ///
-    /// *Secure,HttpOnly,Partitioned*
-    pub fn parse(string: impl Into<Box<str>>) -> Result<Cookie, Error> {
-        Self::parse_inner(string, |name, value| {
-            Ok((Cow::Borrowed(name), Cow::Borrowed(value)))
-        })
+    pub fn parse_cookie(string: impl Into<Box<str>>) -> Result<Cookie, Error> {
+        Self::parse_inner(
+            string,
+            |name, value| Ok((Cow::Borrowed(name), Cow::Borrowed(value))),
+            false,
+        )
+    }
+
+    pub fn parse_set_cookie(string: impl Into<Box<str>>) -> Result<Cookie, Error> {
+        Self::parse_inner(
+            string,
+            |name, value| Ok((Cow::Borrowed(name), Cow::Borrowed(value))),
+            true,
+        )
     }
 
     #[cfg(feature = "percent-encode")]
-    pub fn parse_encoded(string: impl Into<Box<str>>) -> Result<Cookie, Error> {
+    pub fn parse_cookie_encoded(string: impl Into<Box<str>>) -> Result<Cookie, Error> {
         use crate::cookie::encoding;
 
-        Self::parse_inner(string, encoding::decode_name_value)
+        Self::parse_inner(string, encoding::decode_name_value, false)
+    }
+
+    #[cfg(feature = "percent-encode")]
+    pub fn parse_set_cookie_encoded(string: impl Into<Box<str>>) -> Result<Cookie, Error> {
+        use crate::cookie::encoding;
+
+        Self::parse_inner(string, encoding::decode_name_value, true)
     }
 
     fn parse_inner(
         string: impl Into<Box<str>>,
         callback: impl for<'a> Fn(&'a str, &'a str) -> crate::Result<(Cow<'a, str>, Cow<'a, str>)>,
+        set_cookie: bool,
     ) -> Result<Cookie, Error> {
         let mut string = string.into();
         let mut parts = SplitMut::new(&mut string);
@@ -77,7 +79,10 @@ impl Cookie {
 
         let mut cookie = Cookie::new_inner(name, value);
 
-        parse_attributes(&mut cookie, parts)?;
+        if set_cookie {
+            parse_attributes(&mut cookie, parts)?;
+        }
+
         cookie.raw_value = Some(string);
         Ok(cookie)
     }

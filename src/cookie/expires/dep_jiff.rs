@@ -1,6 +1,6 @@
 use std::fmt::Write;
 
-use jiff::{Timestamp, fmt::strtime::BrokenDownTime, tz::Offset};
+use jiff::{Timestamp, Zoned, fmt::strtime::BrokenDownTime, tz::Offset};
 
 use crate::{Cookie, CookieBuilder, Error, cookie::expires::ExpVal};
 
@@ -13,6 +13,15 @@ impl From<Timestamp> for Expires {
     fn from(value: Timestamp) -> Self {
         Self::Exp(super::ExpVal {
             jiff: Some(value),
+            ..Default::default()
+        })
+    }
+}
+
+impl From<Zoned> for Expires {
+    fn from(value: Zoned) -> Self {
+        Self::Exp(super::ExpVal {
+            jiff: Some(value.timestamp()),
             ..Default::default()
         })
     }
@@ -56,7 +65,14 @@ pub fn parse_expires(value: &str) -> Option<Timestamp> {
 #[cfg(test)]
 mod test_jiff {
     use crate::Cookie;
-    use jiff::{Timestamp, civil::datetime, tz::TimeZone};
+    use jiff::{Timestamp, Zoned, civil::datetime, tz::TimeZone};
+
+    #[test]
+    fn zoned() {
+        let now = Zoned::now();
+
+        let _ = Cookie::build("key", "value").expires(now);
+    }
 
     #[test]
     fn parse() {
@@ -86,7 +102,7 @@ mod test_jiff {
         for (cookie, day, month, year, hour, min, sec) in ABBREVIATED_YEARS.to_owned() {
             let expected = timestamp(day, month, year, hour, min, sec);
 
-            let found = Cookie::parse(cookie).unwrap();
+            let found = Cookie::parse_set_cookie(cookie).unwrap();
             let expires = found.expires_jiff().unwrap();
 
             assert_eq!(expires, &expected);
@@ -100,7 +116,7 @@ mod test_jiff {
         for (cookie, day, month, year, hour, min, sec) in ALTERNATIVE_FMTS.to_owned() {
             let expected = timestamp(day, month, year, hour, min, sec);
 
-            let found = Cookie::parse(cookie).unwrap();
+            let found = Cookie::parse_set_cookie(cookie).unwrap();
             let expires = found.expires_jiff().unwrap();
 
             assert_eq!(expires, &expected);

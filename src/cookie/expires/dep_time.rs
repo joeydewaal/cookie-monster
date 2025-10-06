@@ -114,7 +114,7 @@ mod test_time {
         for (cookie, day, month, year, hour, min, sec) in ABBREVIATED_YEARS.to_owned() {
             let expected = offset_datetime(day, month, year, hour, min, sec);
 
-            let found = Cookie::parse(cookie).unwrap();
+            let found = Cookie::parse_set_cookie(cookie).unwrap();
             let expires = found.expires_time().unwrap();
 
             assert_eq!(expires, &expected);
@@ -128,7 +128,7 @@ mod test_time {
         for (cookie, day, month, year, hour, min, sec) in ALTERNATIVE_FMTS.to_owned() {
             let expected = offset_datetime(day, month, year, hour, min, sec);
 
-            let found = Cookie::parse(cookie).unwrap();
+            let found = Cookie::parse_set_cookie(cookie).unwrap();
             let expires = found.expires_time().unwrap();
 
             assert_eq!(expires, &expected);

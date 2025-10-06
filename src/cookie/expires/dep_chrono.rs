@@ -96,7 +96,7 @@ mod test_chrono {
                 .with_ymd_and_hms(year, month, day, hour, min, sec)
                 .unwrap();
 
-            let found = Cookie::parse(cookie).unwrap();
+            let found = Cookie::parse_set_cookie(cookie).unwrap();
             let expires = found.expires_chrono().unwrap();
 
             assert_eq!(expires, &expected);
@@ -112,7 +112,7 @@ mod test_chrono {
                 .with_ymd_and_hms(year, month, day, hour, min, sec)
                 .unwrap();
 
-            let found = Cookie::parse(cookie).unwrap();
+            let found = Cookie::parse_set_cookie(cookie).unwrap();
             let expires = found.expires_chrono().unwrap();
 
             assert_eq!(expires, &expected);
@@ -130,7 +130,8 @@ mod test_chrono {
             Ok("foo=bar; Expires=Fri, 31 Dec 9999 23:59:59 GMT")
         );
 
-        let cookie = Cookie::parse("foo=bar; Expires=Fri, 07 Jan +10000 23:59:59 GMT").unwrap();
+        let cookie =
+            Cookie::parse_set_cookie("foo=bar; Expires=Fri, 07 Jan +10000 23:59:59 GMT").unwrap();
         assert_eq!(cookie.expires_chrono(), Some(&MAX_EXPIRES));
     }
 }
