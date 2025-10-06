@@ -1,6 +1,6 @@
 use std::fmt::Write;
 
-use jiff::{Span, Timestamp, Zoned, fmt::strtime::BrokenDownTime, tz::Offset};
+use jiff::{SignedDuration, Span, Timestamp, Zoned, fmt::strtime::BrokenDownTime, tz::Offset};
 
 use crate::{Cookie, CookieBuilder, Error, cookie::expires::ExpVal};
 
@@ -33,6 +33,11 @@ impl Cookie {
             Expires::Exp(ExpVal { jiff, .. }) => jiff.as_ref(),
             _ => None,
         }
+    }
+
+    pub fn max_age_jiff(&self) -> Option<SignedDuration> {
+        self.max_age_secs()
+            .map(|max_age| SignedDuration::from_secs(max_age as i64))
     }
 }
 

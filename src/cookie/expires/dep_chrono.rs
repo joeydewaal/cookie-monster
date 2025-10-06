@@ -39,6 +39,11 @@ impl Cookie {
             _ => None,
         }
     }
+
+    pub fn max_age_chrono(&self) -> Option<Duration> {
+        self.max_age_secs()
+            .map(|max_age| Duration::seconds(max_age as i64))
+    }
 }
 
 impl Expires {

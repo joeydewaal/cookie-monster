@@ -47,7 +47,11 @@ impl Cookie {
         Self::new_inner(TinyStr::from(name), TinyStr::from(value))
     }
 
-    // Creates a cookie that removes the cookie with the given name.
+    // Creates a cookie that can be used to remove the cookie from the user-agent. This sets the
+    // Expires attribute in the past and MaxAge to 0 seconds.
+    //
+    // Note that a removal cookie needs the same Path and Domain values for the user-agent to
+    // remove the cookie.
     pub fn remove<N>(name: N) -> Cookie
     where
         N: Into<Cow<'static, str>>,
@@ -70,6 +74,8 @@ impl Cookie {
         }
     }
 
+    /// Build a new cookie. This returns a `CookieBuilder` that can be used to set other attribute
+    /// values.
     pub fn build<N, V>(name: N, value: V) -> CookieBuilder
     where
         N: Into<Cow<'static, str>>,
@@ -79,31 +85,37 @@ impl Cookie {
     }
 
     #[inline]
+    /// Returns the cookie name.
     pub fn name(&self) -> &str {
         self.name.as_str(self.raw_value.as_deref())
     }
 
     #[inline]
+    /// Set the cookie name.
     pub fn set_name<N: Into<Cow<'static, str>>>(&mut self, name: N) {
         self.name = TinyStr::from(name)
     }
 
     #[inline]
+    /// Get the cookie value. Doesn't trim `"` characters.
     pub fn value(&self) -> &str {
         self.value.as_str(self.raw_value.as_deref())
     }
 
     #[inline]
+    /// Set the cookie value.
     pub fn set_value<V: Into<Cow<'static, str>>>(&mut self, value: V) {
         self.value = TinyStr::from(value)
     }
 
     #[inline]
+    /// Set the Expired attribute.
     pub fn set_expires<E: Into<Expires>>(&mut self, expires: E) {
         self.expires = expires.into();
     }
 
     #[inline]
+    /// Get the MaxAge duration.
     pub fn max_age(&self) -> Option<Duration> {
         self.max_age.map(Duration::from_secs)
     }

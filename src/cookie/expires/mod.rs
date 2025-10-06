@@ -41,6 +41,8 @@ pub struct ExpVal {
     time: Option<time::OffsetDateTime>,
     #[cfg(feature = "chrono")]
     chrono: Option<chrono::DateTime<chrono::Utc>>,
+
+    /// We unfortunatly don't get enough info to parse into a `jiff::Zoned`
     #[cfg(feature = "jiff")]
     jiff: Option<jiff::Timestamp>,
 }
@@ -75,7 +77,7 @@ pub fn parse_expires(_value: &str) -> Expires {
 
 impl Cookie {
     pub fn serialize_expire(&self, buf: &mut String) -> crate::Result<()> {
-        // Only one can be set at all times.
+        // Only one can be set at all times, except while parsing but then the first match is used.
         match self.expires {
             #[cfg(feature = "time")]
             Expires::Exp(ExpVal { time: Some(t), .. }) => dep_time::ser_expires(t, buf),
@@ -101,6 +103,7 @@ impl PartialEq for Expires {
             (Expires::Remove, Expires::Remove) => true,
             (Expires::Session, Expires::Session) => true,
             (Expires::Exp(_s), Expires::Exp(_o)) => {
+                // TODO: double check this.
                 #[cfg(feature = "time")]
                 if _s.time == _o.time {
                     return true;
