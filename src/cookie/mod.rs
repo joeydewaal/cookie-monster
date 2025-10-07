@@ -38,7 +38,7 @@ pub struct Cookie {
 }
 
 impl Cookie {
-    // Creates a new cookie with the given name and value.
+    /// Creates a new cookie with the given name and value.
     pub fn new<N, V>(name: N, value: V) -> Cookie
     where
         N: Into<Cow<'static, str>>,
@@ -47,11 +47,11 @@ impl Cookie {
         Self::new_inner(TinyStr::from(name), TinyStr::from(value))
     }
 
-    // Creates a cookie that can be used to remove the cookie from the user-agent. This sets the
-    // Expires attribute in the past and MaxAge to 0 seconds.
-    //
-    // Note that a removal cookie needs the same Path and Domain values for the user-agent to
-    // remove the cookie.
+    /// Creates a cookie that can be used to remove the cookie from the user-agent. This sets the
+    /// Expires attribute in the past and MaxAge to 0 seconds.
+    ///
+    /// **To ensure a cookie is removed from the user-agent, set the `Path` and `Domain` attributes
+    /// with the same values that were used to create the cookie.**
     pub fn remove<N>(name: N) -> Cookie
     where
         N: Into<Cow<'static, str>>,
@@ -115,32 +115,38 @@ impl Cookie {
     }
 
     #[inline]
-    /// Get the MaxAge duration.
+    /// Get the MaxAge duration. This returns a `std::time::Duration`, if you'd like a `time`,
+    /// `chrono` or `jiff` specific duration use the `max_age_{time,chrono,jiff}` method.
     pub fn max_age(&self) -> Option<Duration> {
         self.max_age.map(Duration::from_secs)
     }
 
     #[inline]
+    /// Get the MaxAge as seconds.
     pub fn max_age_secs(&self) -> Option<u64> {
         self.max_age
     }
 
     #[inline]
+    /// Set the MaxAge attribute.
     pub fn set_max_age(&mut self, max_age: Duration) {
         self.set_max_age_secs(max_age.as_secs());
     }
 
     #[inline]
+    /// Set the MaxAge value in seconds.
     pub fn set_max_age_secs(&mut self, max_age_secs: u64) {
         self.max_age = Some(max_age_secs);
     }
 
     #[inline]
+    /// Removes the MaxAge attribute.
     pub fn unset_max_age(&mut self) {
         self.max_age = None;
     }
 
     #[inline]
+    /// Returns the Domain attribute if it's set.
     pub fn domain(&self) -> Option<&str> {
         self.domain
             .as_ref()
@@ -152,16 +158,19 @@ impl Cookie {
     }
 
     #[inline]
+    /// Set the Domain attribute.
     pub fn set_domain<D: Into<Cow<'static, str>>>(&mut self, domain: D) {
         self.domain = Some(TinyStr::from(domain))
     }
 
     #[inline]
+    /// Removes the Domain attribute.
     pub fn unset_domain(&mut self) {
         self.domain = None
     }
 
     #[inline]
+    /// Returns the Path attribute if it's set.
     pub fn path(&self) -> Option<&str> {
         self.path
             .as_ref()
@@ -169,16 +178,19 @@ impl Cookie {
     }
 
     #[inline]
+    /// Set the Path attribute.
     pub fn set_path<D: Into<Cow<'static, str>>>(&mut self, path: D) {
         self.path = Some(TinyStr::from(path))
     }
 
     #[inline]
+    /// Removes the path attribute.
     pub fn unset_path(&mut self) {
         self.path = None
     }
 
     #[inline]
+    /// Returns if the Secure attribute is set.
     pub fn secure(&self) -> bool {
         self.secure
     }
@@ -189,6 +201,7 @@ impl Cookie {
     }
 
     #[inline]
+    /// Returns if the HttpOnly attribute is set.
     pub fn http_only(&self) -> bool {
         self.http_only
     }
@@ -199,29 +212,27 @@ impl Cookie {
     }
 
     #[inline]
+    /// Returns if the Partitioned attribute is set.
     pub fn partitioned(&self) -> bool {
         self.partitioned
     }
 
-    // Enabling the Partitioned attribute also enables the Secure attribute
+    /// Set the Partitioned flag, enabling the Partitioned attribute also enables the Secure Attribute.
     #[inline]
     pub fn set_partitioned(&mut self, partitioned: bool) {
         self.partitioned = partitioned;
     }
 
     #[inline]
+    /// Returns the SameSite attribute if it is set.
     pub fn same_site(&self) -> Option<SameSite> {
         self.same_site
     }
 
     #[inline]
+    /// Set the SameSite attribute.
     pub fn set_same_site<S: Into<Option<SameSite>>>(&mut self, same_site: S) {
         self.same_site = same_site.into();
-    }
-
-    #[doc(hidden)]
-    pub fn foo_bar() -> CookieBuilder {
-        Cookie::build("foo", "bar")
     }
 }
 
