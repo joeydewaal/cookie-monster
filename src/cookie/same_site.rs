@@ -9,19 +9,6 @@ pub enum SameSite {
     None,
 }
 
-impl SameSite {
-    pub(crate) fn from_attribute_value(value: &mut str) -> Option<Self> {
-        value.make_ascii_lowercase();
-
-        match &*value {
-            "strict" => Some(SameSite::Strict),
-            "lax" => Some(SameSite::Lax),
-            "none" => Some(SameSite::None),
-            _ => None,
-        }
-    }
-}
-
 impl Cookie {
     pub(crate) fn serialize_same_site(&self, buf: &mut String) {
         let Some(same_site) = self.same_site else {

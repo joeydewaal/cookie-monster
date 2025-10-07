@@ -1,13 +1,10 @@
 use std::fmt::Write;
 
-use jiff::{SignedDuration, Span, Timestamp, Zoned, fmt::strtime::BrokenDownTime, tz::Offset};
+use jiff::{SignedDuration, Span, Timestamp, Zoned};
 
-use crate::{Cookie, CookieBuilder, Error, cookie::expires::ExpVal};
+use crate::{Cookie, Error, cookie::expires::ExpVal};
 
-use super::{
-    Expires,
-    formats::{FMT1, FMT2, FMT3, FMT4},
-};
+use super::{Expires, formats::FMT1};
 
 impl From<Timestamp> for Expires {
     fn from(value: Timestamp) -> Self {
@@ -51,28 +48,6 @@ pub(super) fn ser_expires(expires: Timestamp, buf: &mut String) -> crate::Result
     write!(buf, "; Expires={}", expires.strftime(FMT1)).map_err(|_| Error::ExpiresFmt)
 }
 
-impl CookieBuilder {}
-
-pub fn parse_expires(value: &str) -> Option<Timestamp> {
-    let mut parsed = BrokenDownTime::parse(FMT1, value)
-        .or_else(|_| BrokenDownTime::parse(FMT2, value))
-        .or_else(|_| BrokenDownTime::parse(FMT3, value))
-        .or_else(|_| BrokenDownTime::parse(FMT4, value))
-        .ok()?;
-
-    if let Some(year) = parsed.year() {
-        let offset = match year {
-            0..=68 => 2000,
-            69..=99 => 1900,
-            _ => 0,
-        };
-        parsed.set_year(Some(year + offset)).ok()?;
-    }
-
-    parsed.set_offset(Some(Offset::UTC));
-    parsed.to_timestamp().ok()
-}
-
 #[cfg(test)]
 mod test_jiff {
     use crate::Cookie;
@@ -104,33 +79,5 @@ mod test_jiff {
         .to_zoned(TimeZone::UTC)
         .unwrap()
         .timestamp()
-    }
-
-    #[test]
-    fn parse_abbreviated_years() {
-        use crate::cookie::expires::test_cases::ABBREVIATED_YEARS;
-
-        for (cookie, day, month, year, hour, min, sec) in ABBREVIATED_YEARS.to_owned() {
-            let expected = timestamp(day, month, year, hour, min, sec);
-
-            let found = Cookie::parse_set_cookie(cookie).unwrap();
-            let expires = found.expires_jiff().unwrap();
-
-            assert_eq!(expires, &expected);
-        }
-    }
-
-    #[test]
-    fn parse_variant_date_fmts() {
-        use crate::cookie::expires::test_cases::ALTERNATIVE_FMTS;
-
-        for (cookie, day, month, year, hour, min, sec) in ALTERNATIVE_FMTS.to_owned() {
-            let expected = timestamp(day, month, year, hour, min, sec);
-
-            let found = Cookie::parse_set_cookie(cookie).unwrap();
-            let expires = found.expires_jiff().unwrap();
-
-            assert_eq!(expires, &expected);
-        }
     }
 }

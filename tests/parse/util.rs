@@ -1,11 +1,7 @@
 #[macro_export]
 macro_rules! assert_eq_parse {
     ($string:expr, $cookie:expr) => {
-        assert_eq!(
-            Cookie::parse_set_cookie($string),
-            $cookie,
-            "parse went wrong"
-        );
+        assert_eq!(Cookie::parse_cookie($string), $cookie, "parse went wrong");
     };
 }
 
@@ -13,7 +9,7 @@ macro_rules! assert_eq_parse {
 macro_rules! assert_eq_parse_enc {
     ($string:expr, $cookie:expr) => {
         assert_eq!(
-            Cookie::parse_set_cookie_encoded($string),
+            Cookie::parse_cookie_encoded($string),
             $cookie,
             "parse went wrong"
         );
@@ -23,10 +19,6 @@ macro_rules! assert_eq_parse_enc {
 #[macro_export]
 macro_rules! assert_ne_parse {
     ($string:expr, $cookie:expr) => {
-        assert_ne!(
-            Cookie::parse_set_cookie($string),
-            $cookie,
-            "parse went wrong"
-        );
+        assert_ne!(Cookie::parse_cookie($string), $cookie, "parse went wrong");
     };
 }

@@ -17,12 +17,6 @@ const REMOVE: &str = "Thu, 01 Jan 1970 00:00:00 GMT";
 pub mod formats {
     // Sun, 06 Nov 1994 08:49:37 GMT (RFC)
     pub static FMT1: &str = "%a, %d %b %Y %T GMT";
-    // Sunday, 06-Nov-94 08:49:37 GMT (RFC)
-    pub static FMT2: &str = "%A, %d-%b-%y %T GMT";
-    // Sun Nov  6 08:49:37 1994 (RFC)
-    pub static FMT3: &str = "%a %b %e %T %Y";
-    // Thu, 10-Sep-2069 20:00:00 GMT
-    pub static FMT4: &str = "%a, %d-%b-%Y %T GMT";
 }
 
 #[derive(Clone, Default)]
@@ -62,17 +56,6 @@ impl Expires {
 
         Self::Remove
     }
-}
-
-pub fn parse_expires(_value: &str) -> Expires {
-    Expires::Exp(ExpVal {
-        #[cfg(feature = "time")]
-        time: dep_time::parse_expires_time(_value),
-        #[cfg(feature = "chrono")]
-        chrono: dep_chrono::parse_expires(_value),
-        #[cfg(feature = "jiff")]
-        jiff: dep_jiff::parse_expires(_value),
-    })
 }
 
 impl Cookie {
@@ -146,87 +129,4 @@ impl Debug for Expires {
             }
         }
     }
-}
-
-#[cfg(test)]
-pub mod test_cases {
-    #[allow(unused)]
-    pub const ABBREVIATED_YEARS: &[(&str, u32, u32, i32, u32, u32, u32)] = &[
-        (
-            "foo=bar; expires=Thu, 10-Sep-20 20:00:00 GMT",
-            10,
-            9,
-            2020,
-            20,
-            00,
-            00,
-        ),
-        (
-            "foo=bar; expires=Mon, 10-Sep-68 20:00:00 GMT",
-            10,
-            9,
-            2068,
-            20,
-            00,
-            00,
-        ),
-        (
-            "foo=bar; expires=Wed, 10-Sep-69 20:00:00 GMT",
-            10,
-            9,
-            1969,
-            20,
-            00,
-            00,
-        ),
-        (
-            "foo=bar; expires=Fri, 10-Sep-99 20:00:00 GMT",
-            10,
-            9,
-            1999,
-            20,
-            00,
-            00,
-        ),
-        (
-            "foo=bar; expires=Tue, 10-Sep-2069 20:00:00 GMT",
-            10,
-            9,
-            2069,
-            20,
-            00,
-            00,
-        ),
-    ];
-
-    #[allow(unused)]
-    pub const ALTERNATIVE_FMTS: &[(&str, u32, u32, i32, u32, u32, u32)] = &[
-        (
-            "foo=bar; expires=Sun, 06 Nov 1994 08:49:37 GMT",
-            6,
-            11,
-            1994,
-            8,
-            49,
-            37,
-        ),
-        (
-            "foo=bar; expires=Sunday, 06-Nov-94 08:49:37 GMT",
-            6,
-            11,
-            1994,
-            8,
-            49,
-            37,
-        ),
-        (
-            "foo=bar; expires=Sun Nov  6 08:49:37 1994",
-            6,
-            11,
-            1994,
-            8,
-            49,
-            37,
-        ),
-    ];
 }

@@ -1,22 +1,6 @@
-use crate::{Error, cookie::parse::is_valid_cookie_value, util::TinyStr};
+use crate::{Error, cookie::parse::is_valid_cookie_value};
 
 use super::Cookie;
-
-pub fn parse_path(path: &mut str, source: *const u8) -> Option<TinyStr> {
-    if path.is_empty() {
-        return None;
-    }
-
-    if !path.starts_with('/') {
-        return None;
-    }
-
-    if path.chars().all(|char| !char.is_control() && char != ';') {
-        Some(TinyStr::index(path, source))
-    } else {
-        None
-    }
-}
 
 impl Cookie {
     #[inline]

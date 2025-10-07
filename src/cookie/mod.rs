@@ -7,7 +7,6 @@ use std::{
 mod builder;
 mod domain;
 mod expires;
-mod max_age;
 mod parse;
 mod path;
 pub(crate) mod same_site;
