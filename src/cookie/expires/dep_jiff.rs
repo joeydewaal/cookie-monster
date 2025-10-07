@@ -1,13 +1,16 @@
-use std::fmt::Write;
+use std::{fmt::Write, sync::LazyLock};
 
-use jiff::{SignedDuration, Span, Timestamp, Zoned};
+use jiff::{SignedDuration, Span, Zoned, tz::TimeZone};
 
 use crate::{Cookie, Error, cookie::expires::ExpVal};
 
-use super::{Expires, formats::FMT1};
+use super::Expires;
 
-impl From<Timestamp> for Expires {
-    fn from(value: Timestamp) -> Self {
+// Sun, 06 Nov 1994 08:49:37 GMT (RFC)
+static FMT: &str = "%a, %d %b %Y %T %Z";
+
+impl From<Zoned> for Expires {
+    fn from(value: Zoned) -> Self {
         Self::Exp(super::ExpVal {
             jiff: Some(value),
             ..Default::default()
@@ -15,17 +18,8 @@ impl From<Timestamp> for Expires {
     }
 }
 
-impl From<Zoned> for Expires {
-    fn from(value: Zoned) -> Self {
-        Self::Exp(super::ExpVal {
-            jiff: Some(value.timestamp()),
-            ..Default::default()
-        })
-    }
-}
-
 impl Cookie {
-    pub fn expires_jiff(&self) -> Option<&Timestamp> {
+    pub fn expires_jiff(&self) -> Option<&Zoned> {
         match &self.expires {
             Expires::Exp(ExpVal { jiff, .. }) => jiff.as_ref(),
             _ => None,
@@ -44,14 +38,18 @@ impl Expires {
     }
 }
 
-pub(super) fn ser_expires(expires: Timestamp, buf: &mut String) -> crate::Result<()> {
-    write!(buf, "; Expires={}", expires.strftime(FMT1)).map_err(|_| Error::ExpiresFmt)
+pub(super) fn ser_expires(expires: &Zoned, buf: &mut String) -> crate::Result<()> {
+    static GMT: LazyLock<TimeZone> =
+        LazyLock::new(|| TimeZone::get("GMT").expect("Failed to look up `GMT` timezone"));
+
+    let zoned = expires.with_time_zone(GMT.clone());
+    write!(buf, "; Expires={}", zoned.strftime(FMT)).map_err(|_| Error::ExpiresFmt)
 }
 
 #[cfg(test)]
 mod test_jiff {
     use crate::Cookie;
-    use jiff::{Timestamp, Zoned, civil::datetime, tz::TimeZone};
+    use jiff::{Zoned, civil::datetime};
 
     #[test]
     fn zoned() {
@@ -62,7 +60,7 @@ mod test_jiff {
 
     #[test]
     fn parse() {
-        let expires = timestamp(21, 10, 2015, 7, 28, 0);
+        let expires = datetime(2015, 10, 21, 7, 28, 0, 0).in_tz("GMT").unwrap();
 
         let expected = Cookie::build("foo", "bar").expires(expires).build();
 
@@ -70,14 +68,5 @@ mod test_jiff {
             expected.serialize().as_deref(),
             Ok("foo=bar; Expires=Wed, 21 Oct 2015 07:28:00 GMT")
         )
-    }
-
-    fn timestamp(day: u32, month: u32, year: i32, hour: u32, min: u32, sec: u32) -> Timestamp {
-        datetime(
-            year as _, month as _, day as _, hour as _, min as _, sec as _, 0,
-        )
-        .to_zoned(TimeZone::UTC)
-        .unwrap()
-        .timestamp()
     }
 }

@@ -13,12 +13,6 @@ pub mod dep_jiff;
 
 const REMOVE: &str = "Thu, 01 Jan 1970 00:00:00 GMT";
 
-#[cfg(any(feature = "chrono", feature = "jiff"))]
-pub mod formats {
-    // Sun, 06 Nov 1994 08:49:37 GMT (RFC)
-    pub static FMT1: &str = "%a, %d %b %Y %T GMT";
-}
-
 #[derive(Clone, Default)]
 pub enum Expires {
     // So a user can still remove a cookie without needing any of the datetime features.
@@ -35,10 +29,8 @@ pub struct ExpVal {
     time: Option<time::OffsetDateTime>,
     #[cfg(feature = "chrono")]
     chrono: Option<chrono::DateTime<chrono::Utc>>,
-
-    /// We unfortunatly don't get enough info to parse into a `jiff::Zoned`
     #[cfg(feature = "jiff")]
-    jiff: Option<jiff::Timestamp>,
+    jiff: Option<jiff::Zoned>,
 }
 
 impl Expires {
@@ -61,7 +53,7 @@ impl Expires {
 impl Cookie {
     pub fn serialize_expire(&self, buf: &mut String) -> crate::Result<()> {
         // Only one can be set at all times, except while parsing but then the first match is used.
-        match self.expires {
+        match &self.expires {
             #[cfg(feature = "time")]
             Expires::Exp(ExpVal { time: Some(t), .. }) => dep_time::ser_expires(t, buf),
             #[cfg(feature = "chrono")]

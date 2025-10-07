@@ -2,7 +2,10 @@ use chrono::{DateTime, Duration, NaiveDate, NaiveDateTime, NaiveTime, Utc};
 
 use crate::{Cookie, Error, cookie::expires::ExpVal};
 
-use super::{Expires, formats::FMT1};
+use super::Expires;
+
+// Sun, 06 Nov 1994 08:49:37 GMT (RFC)
+static FMT: &str = "%a, %d %b %Y %T GMT";
 
 static MAX_EXPIRES: DateTime<Utc> = NaiveDateTime::new(
     NaiveDate::from_ymd_opt(9999, 12, 31).unwrap(),
@@ -20,9 +23,9 @@ impl From<DateTime<Utc>> for Expires {
 }
 
 impl Cookie {
-    pub fn expires_chrono(&self) -> Option<&DateTime<Utc>> {
+    pub fn expires_chrono(&self) -> Option<DateTime<Utc>> {
         match &self.expires {
-            Expires::Exp(ExpVal { chrono, .. }) => chrono.as_ref(),
+            Expires::Exp(ExpVal { chrono, .. }) => *chrono,
             _ => None,
         }
     }
@@ -39,11 +42,11 @@ impl Expires {
     }
 }
 
-pub(super) fn ser_expires(expires: DateTime<Utc>, buf: &mut String) -> crate::Result<()> {
+pub(super) fn ser_expires(expires: &DateTime<Utc>, buf: &mut String) -> crate::Result<()> {
     buf.push_str("; Expires=");
 
     expires
-        .format(FMT1)
+        .format(FMT)
         .write_to(buf)
         .map_err(|_| Error::ExpiresFmt)
 }

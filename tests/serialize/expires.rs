@@ -11,8 +11,7 @@ mod time_jiff_chrono {
         // Only last one set takes effect.
         let expires = datetime(2025, 10, 10, 23, 37, 0, 0)
             .to_zoned(TimeZone::UTC)
-            .unwrap()
-            .timestamp();
+            .unwrap();
 
         assert_eq_ser!(
             Cookie::build("foo", "bar")
