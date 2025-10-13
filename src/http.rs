@@ -14,7 +14,7 @@ impl CookieJar {
         CookieJar::from_original(iter)
     }
 
-    pub fn write_cookies(&self, headers: &mut HeaderMap) {
+    pub fn write_cookies(self, headers: &mut HeaderMap) {
         for cookie in self.iter_non_original() {
             if let Some(header) = cookie
                 .serialize_encoded()
