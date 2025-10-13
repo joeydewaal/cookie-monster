@@ -18,11 +18,9 @@ use crate::Cookie;
 /// async fn handler(mut jar: CookieJar) -> CookieJar {
 ///
 ///     if let Some(cookie) = jar.get(COOKIE_NAME) {
-///         // Remove cookie
 ///         println!("Removing cookie {cookie:?}");
 ///         jar.remove(Cookie::named(COOKIE_NAME));
 ///     } else {
-///         // Set cookie.
 ///         let cookie = Cookie::new(COOKIE_NAME, "hello,world");
 ///         println!("Setting cookie {cookie:?}");
 ///         jar.add(cookie);
