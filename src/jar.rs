@@ -7,7 +7,7 @@ pub struct CookieJar {
     cookies: HashSet<HashCookie>,
 }
 
-enum HashCookie {
+pub(crate) enum HashCookie {
     // An original cookie. These should never be sent back to the user-agent.
     Original(Cookie),
     // A new cookie, the should always be sent back to the user-agent.
@@ -84,7 +84,7 @@ impl CookieJar {
 
     // Creates a `CookieJar` from an iterator of cookies. It is assumed that the cookies are
     // __original__. E.g. from a `Cookie` header value.
-    fn from_original<T: IntoIterator<Item = Cookie>>(cookies: T) -> Self {
+    pub fn from_original<T: IntoIterator<Item = Cookie>>(cookies: T) -> Self {
         let mut jar = Self::empty();
 
         for cookie in cookies {
@@ -127,5 +127,12 @@ impl CookieJar {
     /// replaced with the given cookie.
     pub fn add(&mut self, cookie: Cookie) {
         self.cookies.replace(HashCookie::New(cookie));
+    }
+
+    pub(crate) fn iter_non_original(&self) -> impl Iterator<Item = &Cookie> {
+        self.cookies.iter().flat_map(|cookie| match cookie {
+            HashCookie::Original(_) => None,
+            HashCookie::New(cookie) | HashCookie::Removal(cookie) => Some(cookie),
+        })
     }
 }
