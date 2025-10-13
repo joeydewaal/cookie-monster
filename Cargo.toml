@@ -1,11 +1,15 @@
 [package]
 name = "cookie-monster"
-version = "0.1.0"
+version = "0.0.0"
+rust-version = "1.85"
 authors = ["Joey de Waal <dewaaljoey@gmail.com>"]
 edition = "2024"
 license = "MIT"
 readme = "README.md"
-description = "HTTP cookie parsing and cookie jar management."
+description = "A Cookie library for parsing and managing HTTP Cookies."
+repository = "https://github.com/joeydewaal/cookie-monster"
+keywords = ["cookie", "cookies", "axum", "http"]
+categories = ["cookie", "http"]
 
 [features]
 percent-encode = ["dep:percent-encoding"]
@@ -20,15 +24,15 @@ axum = ["dep:axum-core", "http"]
 
 
 [dependencies]
-# Encoding
+# encoding
 percent-encoding = { version = "2.3.1", optional = true }
 
-# Expires
+# expires
 time = { version = "0.3",  features = ["std", "parsing", "formatting", "macros"], default-features = false, optional = true }
 chrono = { version = "0.4", default-features = false, features = ["std", "now"], optional = true }
 jiff = { version = "0.2.15", optional = true }
 
-# Axum integration
+# axum integration
 axum-core = { version = "0.5.5", optional = true }
 
 # http integration
