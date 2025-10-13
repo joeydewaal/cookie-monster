@@ -9,7 +9,7 @@ readme = "README.md"
 description = "A Cookie library for parsing and managing HTTP Cookies."
 repository = "https://github.com/joeydewaal/cookie-monster"
 keywords = ["cookie", "cookies", "axum", "http"]
-categories = ["cookie", "http"]
+categories = ["web-programming"]
 
 [features]
 percent-encode = ["dep:percent-encoding"]
