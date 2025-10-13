@@ -129,6 +129,7 @@ impl CookieJar {
         self.cookies.replace(HashCookie::New(cookie));
     }
 
+    #[allow(unused)]
     pub(crate) fn iter_non_original(&self) -> impl Iterator<Item = &Cookie> {
         self.cookies.iter().flat_map(|cookie| match cookie {
             HashCookie::Original(_) => None,
