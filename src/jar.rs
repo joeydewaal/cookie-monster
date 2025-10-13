@@ -2,6 +2,36 @@ use std::{borrow::Borrow, collections::HashSet, fmt::Debug, hash::Hash};
 
 use crate::Cookie;
 
+/// A generic `CookieJar` for cookie management. Can be used to read update or delete cookies from
+/// a user session.
+///
+/// ## `axum` feature
+///
+/// Note that to set the cookies, the jar _must_ be returned from the handler. Otherwise the
+/// cookies are not updated.
+///
+///
+/// ## Example
+/// ```rust
+/// use cookie_monster::{CookieJar, Cookie};
+///
+/// async fn handler(mut jar: CookieJar) -> CookieJar {
+///
+///     if let Some(cookie) = jar.get(COOKIE_NAME) {
+///         // Remove cookie
+///         println!("Removing cookie {cookie:?}");
+///         jar.remove(Cookie::named(COOKIE_NAME));
+///     } else {
+///         // Set cookie.
+///         let cookie = Cookie::new(COOKIE_NAME, "hello,world");
+///         println!("Setting cookie {cookie:?}");
+///         jar.add(cookie);
+///     }
+///
+///     // Important, return the jar to update the cookies!
+///     jar
+/// }
+/// ```
 #[derive(Default, Debug)]
 pub struct CookieJar {
     cookies: HashSet<HashCookie>,
