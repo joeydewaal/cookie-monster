@@ -1,6 +1,6 @@
 [package]
 name = "cookie-monster"
-version = "0.0.0"
+version = "0.0.1"
 rust-version = "1.85"
 authors = ["Joey de Waal <dewaaljoey@gmail.com>"]
 edition = "2024"
@@ -38,17 +38,17 @@ axum-core = { version = "0.5.5", optional = true }
 # http integration
 http = { version = "1.0", optional = true }
 
-# Parse cookie tests
+# parse cookie tests
 [[test]]
 name = "parse"
 path = "tests/parse/tests.rs"
 
-# Serialize cookie tests
+# serialize cookie tests
 [[test]]
 name = "serialize"
 path = "tests/serialize/tests.rs"
 
-# Jar tests
+# jar tests
 [[test]]
 name = "jar"
 path = "tests/jar.rs"

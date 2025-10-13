@@ -1,40 +1,40 @@
 # cookie-monster
 A Cookie library for parsing and managing HTTP Cookies.
 
-Support for:
-* The `time`,`chrono` and `jiff` crates.
-* `axum`; Extractors and IntoResponse.
-* Percent encoding/decoding
+### Features
+* `jiff`, adds support for the [jiff](https://docs.rs/jiff/latest/jiff/) crate.
+* `chrono`, adds support for the [chrono](https://docs.rs/chrono/latest/chrono/) crate.
+* `time`, adds support for the [time](https://docs.rs/time/latest/time/index.html) crate.
+* `percent-encode`, percent-encode/decode cookies.
+* `axum`, adds integrations with the [axum](https://docs.rs/axum/latest/axum/) crate.
+* `http`, adds integrations with the [http](https://docs.rs/http/latest/http/) crate.
 
-# Usage
+
+### Install
 ```toml
+# Cargo.toml
 [dependencies]
-cookie-monster = "0.1"
+cookie-monster = "0.0.1"
 
-# Adds support for the `time` crate
-cookie-monster = { version = "0.1", features = ["time"] }
-# Adds support for the `chrono` crate
-cookie-monster = { version = "0.1", features = ["chrono"] }
-# Adds support for the `jiff` crate
-cookie-monster = { version = "0.1", features = ["jiff"] }
+# Integration with the `time` crate
+cookie-monster = { version = "0.0.1", features = ["time"] }
+# Integration with the`chrono` crate
+cookie-monster = { version = "0.0.1", features = ["chrono"] }
+# Integration with the `jiff` crate
+cookie-monster = { version = "0.0.1", features = ["jiff"] }
 
-# Adds support for percent-encoding and percent-decoding cookies.
-cookie-monster = { version = "0.1", features = ["percent-encoding"] }
+# Adds support for percent-encoding/decoding cookies.
+cookie-monster = { version = "0.0.1", features = ["percent-encoding"] }
 
-# Adds integration with the `axum` crate.
-cookie-monster = { version = "0.1", features = ["axum"] }
+# Integration with the `axum` crate.
+cookie-monster = { version = "0.0.1", features = ["axum"] }
+
+# Integration with the `http` crate.
+cookie-monster = { version = "0.0.1", features = ["http"] }
 ```
 
-# Features
-* `time`, adds support for the [time](https://docs.rs/time/latest/time/index.html) crate.
 
-* `chrono`, adds support for the [chrono](https://docs.rs/chrono/latest/chrono/) crate.
+### License
+This project is licensed under the [MIT license].
 
-* `jiff`, adds support for the [jiff](https://docs.rs/jiff/latest/jiff/) crate.
-
-* `percent-encode`,
-
-* `axum`, adds integrations with the [axum](https://docs.rs/axum/latest/axum/) crate.
-This implicitly enables the `percent-encode` feature flag.
-
-# License
+[MIT license]: https://github.com/joeydewaal/cookie-monster/blob/main/LICENSE
