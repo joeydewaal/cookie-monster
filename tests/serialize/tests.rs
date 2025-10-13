@@ -13,3 +13,6 @@ mod secure;
 
 #[cfg(feature = "percent-encode")]
 mod encoded;
+
+#[cfg(feature = "axum")]
+mod axum;

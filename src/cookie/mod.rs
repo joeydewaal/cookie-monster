@@ -46,6 +46,14 @@ impl Cookie {
         Self::new_inner(TinyStr::from(name), TinyStr::from(value))
     }
 
+    /// Creates a new cookie with the given name and an empty value.
+    pub fn named<N>(name: N) -> Cookie
+    where
+        N: Into<Cow<'static, str>>,
+    {
+        Self::new(name, "")
+    }
+
     /// Creates a cookie that can be used to remove the cookie from the user-agent. This sets the
     /// Expires attribute in the past and MaxAge to 0 seconds.
     ///

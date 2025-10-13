@@ -7,8 +7,9 @@ impl CookieJar {
         let iter = headers
             .get_all("cookie")
             .into_iter()
-            .flat_map(|header| header.to_str().ok())
-            .flat_map(|string| Cookie::parse_cookie_encoded(string).ok());
+            .filter_map(|header| header.to_str().ok())
+            .flat_map(|cookie_str| cookie_str.split(';'))
+            .filter_map(|string| Cookie::parse_cookie_encoded(string).ok());
 
         CookieJar::from_original(iter)
     }
