@@ -1,20 +1,21 @@
 use std::convert::Infallible;
 
 use axum_core::{
-    extract::{FromRequest, Request},
+    extract::FromRequestParts,
     response::{IntoResponse, IntoResponseParts, Response, ResponseParts},
 };
+use http::request::Parts;
 
 use crate::CookieJar;
 
-impl<S> FromRequest<S> for CookieJar
+impl<S> FromRequestParts<S> for CookieJar
 where
     S: Send + Sync,
 {
     type Rejection = Infallible;
 
-    async fn from_request(req: Request, _: &S) -> Result<Self, Self::Rejection> {
-        Ok(CookieJar::from_headers(req.headers()))
+    async fn from_request_parts(parts: &mut Parts, _: &S) -> Result<Self, Self::Rejection> {
+        Ok(CookieJar::from_headers(&parts.headers))
     }
 }
 

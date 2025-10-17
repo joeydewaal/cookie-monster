@@ -20,9 +20,11 @@ use expires::Expires;
 
 use crate::{SameSite, util::TinyStr};
 
+/// An HTTP Cookie.
 #[derive(Default, Clone)]
 pub struct Cookie {
     // A read only buffer to the raw cookie value.
+    // TODO: Switch to String
     raw_value: Option<Box<str>>,
     name: TinyStr,
     value: TinyStr,
@@ -38,6 +40,15 @@ pub struct Cookie {
 
 impl Cookie {
     /// Creates a new cookie with the given name and value.
+    ///
+    /// # Example
+    /// ```rust
+    /// use cookie_monster::Cookie;
+    ///
+    /// let cookie = Cookie::new("hello", "world");
+    /// assert_eq!(cookie.name(), "hello");
+    /// assert_eq!(cookie.value(), "world");
+    /// ```
     pub fn new<N, V>(name: N, value: V) -> Cookie
     where
         N: Into<Cow<'static, str>>,
@@ -46,7 +57,16 @@ impl Cookie {
         Self::new_inner(TinyStr::from(name), TinyStr::from(value))
     }
 
-    /// Creates a new cookie with the given name and an empty value.
+    /// Creates a new cookie with the given name and an empty value. This can be used when removing
+    /// a cookie from a [`CookieJar`].
+    ///
+    /// # Example
+    /// ```rust
+    /// use cookie_monster::{Cookie, CookieJar};
+    ///
+    /// let mut jar = CookieJar::empty();
+    /// jar.remove(Cookie::named("session"));
+    /// ```
     pub fn named<N>(name: N) -> Cookie
     where
         N: Into<Cow<'static, str>>,
@@ -59,6 +79,20 @@ impl Cookie {
     ///
     /// **To ensure a cookie is removed from the user-agent, set the `Path` and `Domain` attributes
     /// with the same values that were used to create the cookie.**
+    ///
+    /// # Note
+    /// You don't have to use this method with [`CookieJar::remove`], the jar automatically set's
+    /// the Expires and MaxAge attributes.
+    ///
+    /// # Example
+    /// ```rust
+    /// use cookie_monster::Cookie;
+    ///
+    /// let cookie = Cookie::remove("session");
+    ///
+    /// assert_eq!(cookie.max_age_secs(), Some(0));
+    /// assert!(!cookie.expires_session());
+    /// ```
     pub fn remove<N>(name: N) -> Cookie
     where
         N: Into<Cow<'static, str>>,
@@ -83,6 +117,19 @@ impl Cookie {
 
     /// Build a new cookie. This returns a `CookieBuilder` that can be used to set other attribute
     /// values.
+    ///
+    /// # Example
+    /// ```rust
+    /// use cookie_monster::Cookie;
+    ///
+    /// let cookie = Cookie::build("foo", "bar")
+    ///     .secure()
+    ///     .http_only()
+    ///     .build();
+    ///
+    /// assert!(cookie.secure());
+    /// assert!(cookie.http_only());
+    /// ```
     pub fn build<N, V>(name: N, value: V) -> CookieBuilder
     where
         N: Into<Cow<'static, str>>,
@@ -104,7 +151,7 @@ impl Cookie {
     }
 
     #[inline]
-    /// Get the cookie value. Doesn't trim `"` characters.
+    /// Get the cookie value. This does not trim `"` characters.
     pub fn value(&self) -> &str {
         self.value.as_str(self.raw_value.as_deref())
     }
