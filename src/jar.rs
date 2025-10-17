@@ -15,6 +15,8 @@ use crate::Cookie;
 /// ```rust
 /// use cookie_monster::{CookieJar, Cookie};
 ///
+/// static COOKIE_NAME: &str = "session";
+///
 /// async fn handler(mut jar: CookieJar) -> CookieJar {
 ///
 ///     if let Some(cookie) = jar.get(COOKIE_NAME) {
