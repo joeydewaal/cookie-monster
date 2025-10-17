@@ -15,19 +15,19 @@
 //! * `jiff`
 //!
 //!     Adds support for the [jiff](https://docs.rs/jiff/latest/jiff/) crate.
-//!     This exposes methods to [`Cookie`] to retreive the `Expires` and `MaxAge` attributes with jiff
+//!     This exposes methods to [`Cookie`] to retreive the `Expires` and `Max-Age` attributes with jiff
 //!     specific types.
 //!
 //! * `chrono`
 //!
 //!     Adds support for the [chrono](https://docs.rs/chrono/latest/chrono/) crate.
-//!     This exposes methods to [`Cookie`] to retreive the `Expires` and `MaxAge` attributes with
+//!     This exposes methods to [`Cookie`] to retreive the `Expires` and `Max-Age` attributes with
 //!     chrono specific types.
 //!
 //! * `time`
 //!
 //!     Adds support for the [time](https://docs.rs/time/latest/time/index.html) crate.
-//!     This exposes methods to [`Cookie`] to retreive the `Expires` and `MaxAge` attributes with time
+//!     This exposes methods to [`Cookie`] to retreive the `Expires` and `Max-Age` attributes with time
 //!     specific types.
 //!
 //! * `percent-encode`
@@ -60,7 +60,7 @@ mod axum;
 #[cfg(feature = "http")]
 mod http;
 
-pub use cookie::{Cookie, CookieBuilder, same_site::SameSite};
+pub use cookie::{Cookie, CookieBuilder, expires::Expires, same_site::SameSite};
 pub use error::Error;
 pub(crate) type Result<T, E = Error> = ::std::result::Result<T, E>;
 pub use jar::CookieJar;

@@ -144,7 +144,7 @@ impl CookieJar {
     }
 
     /// Removes the cookie from the local cookie store and issues a cookie with an Expires
-    /// attribute in the past and MaxAge of 0 seconds.
+    /// attribute in the past and Max-Age of 0 seconds.
     ///
     /// **To ensure a cookie is removed from the user-agent, set the `Path` and `Domain` attributes
     /// with the same values that were used to create the cookie.**
