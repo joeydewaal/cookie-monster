@@ -15,14 +15,14 @@ use crate::Cookie;
 /// ```rust
 /// use cookie_monster::{CookieJar, Cookie};
 ///
+/// static COOKIE_NAME: &str = "session";
+///
 /// async fn handler(mut jar: CookieJar) -> CookieJar {
 ///
 ///     if let Some(cookie) = jar.get(COOKIE_NAME) {
-///         // Remove cookie
 ///         println!("Removing cookie {cookie:?}");
 ///         jar.remove(Cookie::named(COOKIE_NAME));
 ///     } else {
-///         // Set cookie.
 ///         let cookie = Cookie::new(COOKIE_NAME, "hello,world");
 ///         println!("Setting cookie {cookie:?}");
 ///         jar.add(cookie);
@@ -144,7 +144,7 @@ impl CookieJar {
     }
 
     /// Removes the cookie from the local cookie store and issues a cookie with an Expires
-    /// attribute in the past and MaxAge of 0 seconds.
+    /// attribute in the past and Max-Age of 0 seconds.
     ///
     /// **To ensure a cookie is removed from the user-agent, set the `Path` and `Domain` attributes
     /// with the same values that were used to create the cookie.**

@@ -51,7 +51,11 @@ impl Expires {
 }
 
 impl Cookie {
-    pub fn serialize_expire(&self, buf: &mut String) -> crate::Result<()> {
+    pub fn expires_session(&self) -> bool {
+        matches!(self.expires, Expires::Session)
+    }
+
+    pub(crate) fn serialize_expire(&self, buf: &mut String) -> crate::Result<()> {
         // Only one can be set at all times, except while parsing but then the first match is used.
         match &self.expires {
             #[cfg(feature = "time")]
