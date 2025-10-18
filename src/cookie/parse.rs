@@ -45,8 +45,8 @@ impl Cookie {
         // Remove optional brackets.
         value = trim_quotes(value);
 
-        if !is_valid_cookie_value(value) {
-            return Err(Error::InvalidValue);
+        if let Some(invalid_char) = find_invalid_cookie_value(value) {
+            return Err(Error::InvalidValue(invalid_char));
         }
 
         let (name, value) = callback(name, value)?;
@@ -98,11 +98,11 @@ impl<'s> Iterator for SplitMut<'s> {
 }
 
 #[inline]
-fn allowed_cookie_value(val: char) -> bool {
+fn invalid_cookie_value_char(val: &char) -> bool {
     match val {
-        ' ' | '"' | ',' | ';' | '\\' => false,
-        control if control.is_ascii_control() => false,
-        _ => true,
+        ' ' | '"' | ',' | ';' | '\\' => true,
+        control if control.is_ascii_control() => true,
+        _ => false,
     }
 }
 
@@ -125,6 +125,6 @@ pub fn is_token(val: &str) -> bool {
 }
 
 #[inline]
-pub fn is_valid_cookie_value(val: &str) -> bool {
-    val.chars().all(allowed_cookie_value)
+pub fn find_invalid_cookie_value(val: &str) -> Option<char> {
+    val.chars().find(invalid_cookie_value_char)
 }

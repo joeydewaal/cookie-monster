@@ -38,26 +38,26 @@ fn invalid_name_value() {
 
     assert_eq_parse!("=bar", Err(Error::NameEmpty));
     assert_eq_parse!(" =bar", Err(Error::NameEmpty));
-    assert_eq_parse!("foo=\0", Err(Error::InvalidValue));
-    assert_eq_parse!("foo=test\0test", Err(Error::InvalidValue));
+    assert_eq_parse!("foo=\0", Err(Error::InvalidValue('\0')));
+    assert_eq_parse!("foo=test\0test", Err(Error::InvalidValue('\0')));
 }
 
 #[test]
 fn name_value_brackets_spaces() {
     assert_eq_parse!("foo=\"bar\"", Ok(Cookie::new("foo", "bar")));
 
-    assert_eq_parse!("foo=\"  bar  \"", Err(Error::InvalidValue));
+    assert_eq_parse!("foo=\"  bar  \"", Err(Error::InvalidValue(' ')));
 
-    assert_eq_parse!("foo=\"", Err(Error::InvalidValue));
-    assert_eq_parse!("foo=\"\"bar\"\"", Err(Error::InvalidValue));
-    assert_eq_parse!("foo=\"bar", Err(Error::InvalidValue));
-    assert_eq_parse!("foo=\"\"bar", Err(Error::InvalidValue));
-    assert_eq_parse!("foo=bar\"", Err(Error::InvalidValue));
-    assert_eq_parse!("foo=bar\"\"", Err(Error::InvalidValue));
-    assert_eq_parse!("foo=\"bar\"\"", Err(Error::InvalidValue));
-    assert_eq_parse!("foo=\"  bar\"\"", Err(Error::InvalidValue));
-    assert_eq_parse!("foo=\"  bar\"  \"  ", Err(Error::InvalidValue));
-    assert_eq_parse!(" foo=\"bar   \" ", Err(Error::InvalidValue));
+    assert_eq_parse!("foo=\"", Err(Error::InvalidValue('\"')));
+    assert_eq_parse!("foo=\"\"bar\"\"", Err(Error::InvalidValue('\"')));
+    assert_eq_parse!("foo=\"bar", Err(Error::InvalidValue('\"')));
+    assert_eq_parse!("foo=\"\"bar", Err(Error::InvalidValue('\"')));
+    assert_eq_parse!("foo=bar\"", Err(Error::InvalidValue('\"')));
+    assert_eq_parse!("foo=bar\"\"", Err(Error::InvalidValue('\"')));
+    assert_eq_parse!("foo=\"bar\"\"", Err(Error::InvalidValue('\"')));
+    assert_eq_parse!("foo=\"  bar\"\"", Err(Error::InvalidValue(' ')));
+    assert_eq_parse!("foo=\"  bar\"  \"  ", Err(Error::InvalidValue(' ')));
+    assert_eq_parse!(" foo=\"bar   \" ", Err(Error::InvalidValue(' ')));
 }
 
 #[test]

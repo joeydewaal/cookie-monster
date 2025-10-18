@@ -13,7 +13,7 @@ fn name_value() {
 fn invalid_name_value() {
     assert_eq_ser!(Cookie::new("", "bar"), Err(&Error::NameEmpty));
     assert_eq_ser!(Cookie::new("foo\0", "bar"), Err(&Error::InvalidName));
-    assert_eq_ser!(Cookie::new("foo", "bar\0"), Err(&Error::InvalidValue));
-    assert_eq_ser!(Cookie::new("foo", " "), Err(&Error::InvalidValue));
-    assert_eq_ser!(Cookie::new("foo", "\""), Err(&Error::InvalidValue));
+    assert_eq_ser!(Cookie::new("foo", "bar\0"), Err(&Error::InvalidValue('\0')));
+    assert_eq_ser!(Cookie::new("foo", " "), Err(&Error::InvalidValue(' ')));
+    assert_eq_ser!(Cookie::new("foo", "\""), Err(&Error::InvalidValue('\"')));
 }

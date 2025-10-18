@@ -1,4 +1,4 @@
-use crate::cookie::parse::is_valid_cookie_value;
+use crate::cookie::parse::find_invalid_cookie_value;
 
 use super::Cookie;
 
@@ -17,7 +17,7 @@ impl Cookie {
 
         // We're a bit conservative here and ignore domains that contain invalid cookie characters.
         // This makes the cookie a host-only cookie.
-        if !is_valid_cookie_value(domain) {
+        if find_invalid_cookie_value(domain).is_some() {
             return;
         }
 

@@ -1,4 +1,4 @@
-use crate::{Error, cookie::parse::is_valid_cookie_value};
+use crate::{Error, cookie::parse::find_invalid_cookie_value};
 
 use super::Cookie;
 
@@ -15,8 +15,10 @@ impl Cookie {
             return Err(Error::EmptyPathValue);
         }
 
-        if !path.starts_with('/') || !is_valid_cookie_value(path) {
-            return Err(Error::InvalidPathValue);
+        if !path.starts_with('/') {
+            return Err(Error::NoLeadingSlash);
+        } else if let Some(invalid_char) = find_invalid_cookie_value(path) {
+            return Err(Error::InvalidPathValue(invalid_char));
         }
 
         buf.push_str("; Path=");

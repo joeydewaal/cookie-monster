@@ -43,7 +43,6 @@ where
 {
     fn from(value: T) -> Self {
         match value.into() {
-            // TODO: switch to String.
             Cow::Owned(owned) => TinyStr::Owned(owned),
             Cow::Borrowed(borrowed) => TinyStr::Static(borrowed),
         }
