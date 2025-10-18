@@ -19,6 +19,7 @@ impl From<Zoned> for Expires {
 }
 
 impl Cookie {
+    /// Returns the Expires attribute using a [`Zoned`](jiff::Zoned).
     pub fn expires_jiff(&self) -> Option<&Zoned> {
         match &self.expires {
             Expires::Exp(ExpVal { jiff, .. }) => jiff.as_ref(),
@@ -26,6 +27,7 @@ impl Cookie {
         }
     }
 
+    /// Returns the Max-Age attribute using a [`SignedDuration`](jiff::SignedDuration).
     pub fn max_age_jiff(&self) -> Option<SignedDuration> {
         self.max_age_secs()
             .map(|max_age| SignedDuration::from_secs(max_age as i64))
@@ -33,6 +35,7 @@ impl Cookie {
 }
 
 impl Expires {
+    /// Creates an [`Expires`] with a [`Zoned`](jiff::Zoned) one year in the past.
     pub(crate) fn remove_jiff() -> Self {
         Self::from(&Zoned::now() - Span::new().years(1))
     }

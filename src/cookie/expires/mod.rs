@@ -51,7 +51,9 @@ impl Expires {
 }
 
 impl Cookie {
-    pub fn expires_session(&self) -> bool {
+    /// If the Expires attribute is not set, the expiration of the cookie is tied to the session
+    /// with the user-agent.
+    pub fn is_expires_set(&self) -> bool {
         matches!(self.expires, Expires::Session)
     }
 

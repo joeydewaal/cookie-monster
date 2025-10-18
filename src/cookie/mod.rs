@@ -74,7 +74,7 @@ impl Cookie {
     /// let cookie = Cookie::remove("session");
     ///
     /// assert_eq!(cookie.max_age_secs(), Some(0));
-    /// assert!(!cookie.expires_session());
+    /// assert!(!cookie.is_expires_set());
     /// ```
     pub fn remove<N>(name: N) -> Cookie
     where

@@ -20,6 +20,7 @@ impl From<OffsetDateTime> for Expires {
 }
 
 impl Cookie {
+    /// Returns the Expires attribute using a [`OffsetDateTime`](time::OffsetDateTime).
     pub fn expires_time(&self) -> Option<OffsetDateTime> {
         match &self.expires {
             Expires::Exp(ExpVal { time, .. }) => *time,
@@ -27,6 +28,7 @@ impl Cookie {
         }
     }
 
+    /// Returns the Max-Age attribute using a [`Duration`](time::Duration).
     pub fn max_age_time(&self) -> Option<Duration> {
         self.max_age_secs()
             .map(|max_age| Duration::seconds(max_age as i64))
@@ -34,6 +36,7 @@ impl Cookie {
 }
 
 impl Expires {
+    /// Creates an [`Expires`] with a [`OffsetDateTime`](time::OffsetDateTime) one year in the past.
     pub(crate) fn remove_time() -> Self {
         Self::from(OffsetDateTime::now_utc() - Duration::days(365))
     }
