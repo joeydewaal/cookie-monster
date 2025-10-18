@@ -16,7 +16,6 @@ impl Cookie {
         }
 
         if !path.starts_with('/') {
-            // TODO
             return Err(Error::NoLeadingSlash);
         } else if let Some(invalid_char) = find_invalid_cookie_value(path) {
             return Err(Error::InvalidPathValue(invalid_char));
