@@ -3,24 +3,23 @@ use std::borrow::Cow;
 use crate::{Cookie, error::Error, util::TinyStr};
 
 impl Cookie {
-    pub fn parse_cookie(string: impl Into<Box<str>>) -> Result<Cookie, Error> {
-        Self::parse_inner(string, |name, value| {
+    pub fn parse_cookie(string: impl Into<String>) -> Result<Cookie, Error> {
+        Self::parse_inner(string.into(), |name, value| {
             Ok((Cow::Borrowed(name), Cow::Borrowed(value)))
         })
     }
 
     #[cfg(feature = "percent-encode")]
-    pub fn parse_cookie_encoded(string: impl Into<Box<str>>) -> Result<Cookie, Error> {
+    pub fn parse_cookie_encoded(string: impl Into<String>) -> Result<Cookie, Error> {
         use crate::cookie::encoding;
 
-        Self::parse_inner(string, encoding::decode_name_value)
+        Self::parse_inner(string.into(), encoding::decode_name_value)
     }
 
     fn parse_inner(
-        string: impl Into<Box<str>>,
+        mut string: String,
         callback: impl for<'a> Fn(&'a str, &'a str) -> crate::Result<(Cow<'a, str>, Cow<'a, str>)>,
     ) -> Result<Cookie, Error> {
-        let mut string = string.into();
         let mut parts = SplitMut::new(&mut string);
 
         let name_value = parts.next().expect("First split always returns something");

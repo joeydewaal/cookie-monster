@@ -148,8 +148,8 @@ impl CookieJar {
     ///
     /// **To ensure a cookie is removed from the user-agent, set the `Path` and `Domain` attributes
     /// with the same values that were used to create the cookie.**
-    pub fn remove(&mut self, cookie: Cookie) {
-        let cookie = HashCookie::Removal(cookie.into_remove());
+    pub fn remove(&mut self, cookie: impl Into<Cookie>) {
+        let cookie = HashCookie::Removal(cookie.into().into_remove());
         self.cookies.replace(cookie);
     }
 
