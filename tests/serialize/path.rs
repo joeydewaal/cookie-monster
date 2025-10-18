@@ -11,7 +11,7 @@ fn path() {
 
     assert_eq_ser!(
         Cookie::build("foo", "bar").path("home").build(),
-        Err(&Error::InvalidPathValue)
+        Err(&Error::NoLeadingSlash)
     );
     assert_eq_ser!(
         Cookie::build("foo", "bar").path("").build(),

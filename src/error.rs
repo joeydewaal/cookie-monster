@@ -8,7 +8,7 @@ pub enum Error {
     EqualsNotFound,
     NameEmpty,
     InvalidName,
-    InvalidValue,
+    InvalidValue(char),
 
     // Expires
     ExpiresFmt,
@@ -17,8 +17,9 @@ pub enum Error {
     PercentDecodeError,
 
     // Path
-    InvalidPathValue,
+    InvalidPathValue(char),
     EmptyPathValue,
+    NoLeadingSlash,
 }
 
 impl Display for Error {
@@ -27,11 +28,16 @@ impl Display for Error {
             Error::EqualsNotFound => "No '=' found in the cookie",
             Error::NameEmpty => "The cookie name is empty",
             Error::InvalidName => "The cookie name contains an invalid character",
-            Error::InvalidValue => "The cookie value contains an invalid value",
+            Error::InvalidValue(c) => {
+                return write!(f, "The cookie value contains an invalid value {c}");
+            }
             Error::ExpiresFmt => "Failed to format the expires value",
             Error::PercentDecodeError => "An error occured while decoding",
-            Error::InvalidPathValue => "The path attribute contains an invalid value",
+            Error::InvalidPathValue(c) => {
+                return write!(f, "The path attribute contains an invalid value ({c})");
+            }
             Error::EmptyPathValue => "The path attribute is empty",
+            Error::NoLeadingSlash => "The path attribute does not start with a leading slash",
         };
 
         f.write_str(err)
