@@ -13,6 +13,7 @@ pub mod dep_jiff;
 
 const REMOVE: &str = "Thu, 01 Jan 1970 00:00:00 GMT";
 
+/// The Expires attribute.
 #[derive(Clone, Default)]
 pub enum Expires {
     // So a user can still remove a cookie without needing any of the datetime features.

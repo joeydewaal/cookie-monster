@@ -2,6 +2,7 @@ use std::fmt::{self, Write};
 
 use crate::Cookie;
 
+/// The SameSite attribute.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum SameSite {
     Strict,
