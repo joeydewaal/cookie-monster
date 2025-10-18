@@ -8,6 +8,7 @@ license = "MIT"
 readme = "README.md"
 description = "A Cookie library for parsing and managing HTTP Cookies."
 repository = "https://github.com/joeydewaal/cookie-monster"
+documentation = "https://docs.rs/cookie-monster"
 keywords = ["cookie", "cookies", "axum", "http"]
 categories = ["web-programming"]
 
@@ -41,6 +42,9 @@ http = { version = "1.0", optional = true }
 
 [dev-dependencies]
 axum = "0.8.6"
+
+[package.metadata.docs.rs]
+features = ["percent-encode", "time", "chrono", "jiff", "http", "axum"]
 
 # parse cookie tests
 [[test]]

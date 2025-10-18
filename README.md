@@ -33,6 +33,9 @@ cookie-monster = { version = "0.1", features = ["axum"] }
 cookie-monster = { version = "0.1", features = ["http"] }
 ```
 
+### Honorable mention
+This crate takes a lot of inspiration from the [cookie](https://crates.io/crates/cookie) crate.
+
 
 ### License
 This project is licensed under the [MIT license].

@@ -48,6 +48,9 @@
 //!     Create a [`CookieJar`] from a [`HeaderMap`](https://docs.rs/http/latest/http/header/struct.HeaderMap.html).
 //!     Write a [`CookieJar`] to a [`HeaderMap`](https://docs.rs/http/latest/http/header/struct.HeaderMap.html).
 //!
+//!
+//! ### Honorable mention
+//! This crate takes a lot of inspiration from the [cookie](https://crates.io/crates/cookie) crate.
 
 mod cookie;
 mod error;
