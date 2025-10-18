@@ -23,7 +23,7 @@ use crate::Cookie;
 ///         println!("Removing cookie {cookie:?}");
 ///         jar.remove(Cookie::named(COOKIE_NAME));
 ///     } else {
-///         let cookie = Cookie::new(COOKIE_NAME, "hello,world");
+///         let cookie = Cookie::new(COOKIE_NAME, "hello, world");
 ///         println!("Setting cookie {cookie:?}");
 ///         jar.add(cookie);
 ///     }
@@ -93,14 +93,14 @@ impl CookieJar {
         Self::default()
     }
 
-    /// Parses the given `Set-Cookie` header value and return a `CookieJar`. Ignores cookies that
-    /// were not able to be parsed.
+    /// Parses the given `cookie` header value and return a `CookieJar`. This function ignores
+    /// cookies that were not able to be parsed.
     pub fn from_cookie(header: &str) -> Self {
         Self::from_original(header.split(';').flat_map(Cookie::parse_cookie))
     }
 
-    /// Parses the given `Set-Cookie` header value and return a `CookieJar`. Ignores cookies that
-    /// were not able to be parsed.
+    /// Parses the given `cookie` header value and return a `CookieJar`. The cookie name and values
+    /// are percent-decoded. Cookies that were not able to be parsed are ignored.
     #[cfg(feature = "percent-encode")]
     pub fn from_encoded_cookie(header: &str) -> Self {
         Self::from_original(header.split(';').flat_map(Cookie::parse_cookie_encoded))
@@ -148,8 +148,8 @@ impl CookieJar {
     ///
     /// **To ensure a cookie is removed from the user-agent, set the `Path` and `Domain` attributes
     /// with the same values that were used to create the cookie.**
-    pub fn remove(&mut self, cookie: Cookie) {
-        let cookie = HashCookie::Removal(cookie.into_remove());
+    pub fn remove(&mut self, cookie: impl Into<Cookie>) {
+        let cookie = HashCookie::Removal(cookie.into().into_remove());
         self.cookies.replace(cookie);
     }
 

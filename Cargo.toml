@@ -30,6 +30,7 @@ percent-encoding = { version = "2.3.1", optional = true }
 # expires
 time = { version = "0.3",  features = ["std", "parsing", "formatting", "macros"], default-features = false, optional = true }
 chrono = { version = "0.4", default-features = false, features = ["std", "now"], optional = true }
+# TODO: default-features = false
 jiff = { version = "0.2.15", optional = true }
 
 # axum integration

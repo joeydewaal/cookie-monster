@@ -1,5 +1,6 @@
 use std::fmt::Display;
 
+/// All errors that can be returned while parsing or serializing cookies.
 #[derive(Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Error {

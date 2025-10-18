@@ -23,6 +23,7 @@ impl From<DateTime<Utc>> for Expires {
 }
 
 impl Cookie {
+    /// Returns the Expires attribute using [`chrono::DateTime`].
     pub fn expires_chrono(&self) -> Option<DateTime<Utc>> {
         match &self.expires {
             Expires::Exp(ExpVal { chrono, .. }) => *chrono,
@@ -30,6 +31,7 @@ impl Cookie {
         }
     }
 
+    /// Returns the Max-Age attribute using [`chrono::Duration`].
     pub fn max_age_chrono(&self) -> Option<Duration> {
         self.max_age_secs()
             .map(|max_age| Duration::seconds(max_age as i64))
@@ -37,6 +39,7 @@ impl Cookie {
 }
 
 impl Expires {
+    /// Creates an [`Expires`] with a [`chrono::DateTime`] one year in the past.
     pub(crate) fn remove_chrono() -> Self {
         Self::from(Utc::now() - Duration::days(365))
     }

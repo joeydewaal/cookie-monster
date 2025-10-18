@@ -8,6 +8,7 @@ use crate::Cookie;
 
 use super::{expires::Expires, same_site::SameSite};
 
+/// A builder struct for building a [`Cookie`].
 #[derive(PartialEq)]
 pub struct CookieBuilder(Cookie);
 
@@ -50,7 +51,6 @@ impl CookieBuilder {
         self
     }
 
-    #[inline]
     /// Sets the Expires attribute of the cookie.
     ///
     /// The argument can be a few different types, based on what features are enabled.
@@ -64,7 +64,7 @@ impl CookieBuilder {
     ///     .expires(Expires::remove())
     ///     .build();
     ///
-    /// assert!(!cookie.expires_session());
+    /// assert!(!cookie.is_expires_set());
     /// ```
     ///
     /// # Jiff
@@ -78,7 +78,7 @@ impl CookieBuilder {
     ///     .expires(Zoned::now())
     ///     .build();
     ///
-    /// # assert!(!cookie.expires_session());
+    /// # assert!(!cookie.is_expires_set());
     /// # }
     /// ```
     ///
@@ -93,7 +93,7 @@ impl CookieBuilder {
     ///     .expires(Utc::now())
     ///     .build();
     ///
-    /// # assert!(!cookie.expires_session());
+    /// # assert!(!cookie.is_expires_set());
     /// # }
     /// ```
     ///
@@ -108,9 +108,10 @@ impl CookieBuilder {
     ///     .expires(OffsetDateTime::now_utc())
     ///     .build();
     ///
-    /// # assert!(!cookie.expires_session());
+    /// # assert!(!cookie.is_expires_set());
     /// # }
     /// ```
+    #[inline]
     pub fn expires(mut self, expiration: impl Into<Expires>) -> Self {
         self.0.set_expires(expiration.into());
         self
@@ -219,6 +220,7 @@ impl CookieBuilder {
         self
     }
 
+    /// Sets the Secure attribute.
     #[inline]
     pub fn set_secure(mut self, secure: bool) -> Self {
         self.0.set_secure(secure);
@@ -243,6 +245,7 @@ impl CookieBuilder {
         self
     }
 
+    /// Sets the HttpOnly attribute of the cookie.
     #[inline]
     pub fn set_http_only(mut self, http_only: bool) -> Self {
         self.0.set_http_only(http_only);
@@ -252,7 +255,7 @@ impl CookieBuilder {
     /// Sets the Partitioned attribute of the cookie. When the partitioned attribute is enabled, the
     /// secure flag is also enabled while serializing.
     ///
-    /// https://developer.mozilla.org/en-US/docs/Web/Privacy/Guides/Privacy_sandbox/Partitioned_cookies
+    /// <https://developer.mozilla.org/en-US/docs/Web/Privacy/Guides/Privacy_sandbox/Partitioned_cookies>
     ///
     /// # Example
     /// ```rust
@@ -269,13 +272,13 @@ impl CookieBuilder {
         self.set_partitioned(true)
     }
 
+    /// Set the Partitioned flag, enabling the Partitioned attribute also enables the Secure Attribute.
     #[inline]
     pub fn set_partitioned(mut self, partitioned: bool) -> Self {
         self.0.set_partitioned(partitioned);
         self
     }
 
-    #[inline]
     /// Sets the SameSite attribute value of the cookie.
     ///
     /// # Example
@@ -288,6 +291,7 @@ impl CookieBuilder {
     ///
     /// assert_eq!(cookie.same_site(), Some(SameSite::Strict));
     /// ```
+    #[inline]
     pub fn same_site<S: Into<Option<SameSite>>>(mut self, same_site: S) -> Self {
         self.0.set_same_site(same_site);
         self
@@ -315,5 +319,11 @@ impl fmt::Display for CookieBuilder {
 impl Borrow<Cookie> for CookieBuilder {
     fn borrow(&self) -> &Cookie {
         &self.0
+    }
+}
+
+impl Into<Cookie> for CookieBuilder {
+    fn into(self) -> Cookie {
+        self.0
     }
 }

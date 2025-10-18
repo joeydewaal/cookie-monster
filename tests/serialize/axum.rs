@@ -16,7 +16,7 @@ async fn handler(mut jar: CookieJar) -> impl IntoResponse {
         jar.remove(Cookie::named(COOKIE_NAME));
     } else {
         // Set cookie.
-        let cookie = Cookie::new(COOKIE_NAME, "hello,world");
+        let cookie = Cookie::new(COOKIE_NAME, "hello, world");
         println!("Setting cookie {cookie:?}");
         jar.add(cookie);
     }

@@ -3,7 +3,7 @@ use std::borrow::Cow;
 #[derive(Clone)]
 pub(crate) enum TinyStr {
     Static(&'static str),
-    Owned(Box<str>),
+    Owned(String),
     Indexed(usize, usize),
 }
 
@@ -44,7 +44,7 @@ where
     fn from(value: T) -> Self {
         match value.into() {
             // TODO: switch to String.
-            Cow::Owned(owned) => TinyStr::Owned(owned.into()),
+            Cow::Owned(owned) => TinyStr::Owned(owned),
             Cow::Borrowed(borrowed) => TinyStr::Static(borrowed),
         }
     }
