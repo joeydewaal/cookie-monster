@@ -15,19 +15,19 @@
 //! * `jiff`
 //!
 //!     Adds support for the [jiff](https://docs.rs/jiff/latest/jiff/) crate.
-//!     This exposes methods to [`Cookie`] to retreive the `Expires` and `Max-Age` attributes with jiff
+//!     This exposes methods to [`Cookie`] to retrieve the `Expires` and `Max-Age` attributes with jiff
 //!     specific types.
 //!
 //! * `chrono`
 //!
 //!     Adds support for the [chrono](https://docs.rs/chrono/latest/chrono/) crate.
-//!     This exposes methods to [`Cookie`] to retreive the `Expires` and `Max-Age` attributes with
+//!     This exposes methods to [`Cookie`] to retrieve the `Expires` and `Max-Age` attributes with
 //!     chrono specific types.
 //!
 //! * `time`
 //!
 //!     Adds support for the [time](https://docs.rs/time/latest/time/index.html) crate.
-//!     This exposes methods to [`Cookie`] to retreive the `Expires` and `Max-Age` attributes with time
+//!     This exposes methods to [`Cookie`] to retrieve the `Expires` and `Max-Age` attributes with time
 //!     specific types.
 //!
 //! * `percent-encode`

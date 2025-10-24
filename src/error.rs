@@ -32,7 +32,7 @@ impl Display for Error {
                 return write!(f, "The cookie value contains an invalid value {c}");
             }
             Error::ExpiresFmt => "Failed to format the expires value",
-            Error::PercentDecodeError => "An error occured while decoding",
+            Error::PercentDecodeError => "An error occurred while decoding",
             Error::InvalidPathValue(c) => {
                 return write!(f, "The path attribute contains an invalid value ({c})");
             }
