@@ -1,0 +1,37 @@
+name: CI/CD
+
+on: [pull_request]
+
+jobs:
+  format:
+    name: cargo fmt
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup component add rustfmt
+      - run: cargo fmt --all -- --check
+
+  msrv:
+    runs-on: ubuntu-24.04
+    name: MSRV check
+    steps:
+    - uses: actions/checkout@v4
+    - uses: taiki-e/install-action@cargo-hack
+    - run: cargo hack check --rust-version --workspace --all-targets --ignore-private
+
+  check:
+    runs-on: ubuntu-24.04
+    name: cargo check
+    steps:
+    - uses: actions/checkout@v4
+    - uses: taiki-e/install-action@cargo-hack
+    - run: cargo hack check --each-feature --no-dev-deps
+
+  test:
+    runs-on: ubuntu-24.04
+    name: cargo test
+    steps:
+    - uses: actions/checkout@v4
+    - uses: taiki-e/install-action@cargo-hack
+    - run: cargo hack test --each-feature
