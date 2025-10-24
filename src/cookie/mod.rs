@@ -22,8 +22,7 @@ use crate::{SameSite, util::TinyStr};
 
 /// An HTTP Cookie.
 #[derive(Default, Clone)]
-pub struct Cookie
-{
+pub struct Cookie {
     // A read only buffer to the raw cookie value.
     raw_value: Option<String>,
     name: TinyStr,
