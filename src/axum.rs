@@ -6,7 +6,7 @@ use axum_core::{
 };
 use http::request::Parts;
 
-use crate::CookieJar;
+use crate::{Cookie, CookieJar};
 
 impl<S> FromRequestParts<S> for CookieJar
 where
@@ -29,6 +29,27 @@ impl IntoResponseParts for CookieJar {
 }
 
 impl IntoResponse for CookieJar {
+    fn into_response(self) -> Response {
+        (self, ()).into_response()
+    }
+}
+
+impl IntoResponseParts for Cookie {
+    type Error = Infallible;
+
+    fn into_response_parts(self, mut res: ResponseParts) -> Result<ResponseParts, Self::Error> {
+        if let Some(cookie) = self
+            .serialize_encoded()
+            .ok()
+            .and_then(|string| string.parse().ok())
+        {
+            res.headers_mut().insert("set-cookie", cookie);
+        }
+        Ok(res)
+    }
+}
+
+impl IntoResponse for Cookie {
     fn into_response(self) -> Response {
         (self, ()).into_response()
     }

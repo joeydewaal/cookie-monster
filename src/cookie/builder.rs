@@ -9,7 +9,7 @@ use crate::Cookie;
 use super::{expires::Expires, same_site::SameSite};
 
 /// A builder struct for building a [`Cookie`].
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 pub struct CookieBuilder(Cookie);
 
 impl CookieBuilder {
@@ -44,11 +44,21 @@ impl CookieBuilder {
         self
     }
 
+    /// Returns the name of the cookie.
+    pub fn get_name(&self) -> &str {
+        self.0.name()
+    }
+
     /// Sets the value of the cookie.
     #[inline]
     pub fn value<V: Into<Cow<'static, str>>>(mut self, value: V) -> Self {
         self.0.set_value(value);
         self
+    }
+
+    /// Returns the value of the cookie.
+    pub fn get_value(&self) -> &str {
+        self.0.value()
     }
 
     /// Sets the Expires attribute of the cookie.
@@ -64,7 +74,7 @@ impl CookieBuilder {
     ///     .expires(Expires::remove())
     ///     .build();
     ///
-    /// assert!(!cookie.is_expires_set());
+    /// assert!(cookie.is_expires_set());
     /// ```
     ///
     /// # Jiff
@@ -78,7 +88,7 @@ impl CookieBuilder {
     ///     .expires(Zoned::now())
     ///     .build();
     ///
-    /// # assert!(!cookie.is_expires_set());
+    /// # assert!(cookie.is_expires_set());
     /// # }
     /// ```
     ///
@@ -93,7 +103,7 @@ impl CookieBuilder {
     ///     .expires(Utc::now())
     ///     .build();
     ///
-    /// # assert!(!cookie.is_expires_set());
+    /// # assert!(cookie.is_expires_set());
     /// # }
     /// ```
     ///
@@ -108,7 +118,7 @@ impl CookieBuilder {
     ///     .expires(OffsetDateTime::now_utc())
     ///     .build();
     ///
-    /// # assert!(!cookie.is_expires_set());
+    /// # assert!(cookie.is_expires_set());
     /// # }
     /// ```
     #[inline]

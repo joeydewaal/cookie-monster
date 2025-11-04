@@ -55,7 +55,7 @@ impl Cookie {
     /// If the Expires attribute is not set, the expiration of the cookie is tied to the session
     /// with the user-agent.
     pub fn is_expires_set(&self) -> bool {
-        matches!(self.expires, Expires::Session)
+        !matches!(self.expires, Expires::Session)
     }
 
     pub(crate) fn serialize_expire(&self, buf: &mut String) -> crate::Result<()> {
