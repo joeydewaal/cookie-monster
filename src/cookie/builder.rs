@@ -332,8 +332,8 @@ impl Borrow<Cookie> for CookieBuilder {
     }
 }
 
-impl Into<Cookie> for CookieBuilder {
-    fn into(self) -> Cookie {
-        self.0
+impl From<CookieBuilder> for Cookie {
+    fn from(value: CookieBuilder) -> Self {
+        value.build()
     }
 }

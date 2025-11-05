@@ -14,39 +14,39 @@
 //! # Features
 //! * `jiff`
 //!
-//!     Adds support for the [jiff](https://docs.rs/jiff/latest/jiff/) crate.
-//!     This exposes methods to [`Cookie`] to retrieve the `Expires` and `Max-Age` attributes with jiff
-//!     specific types.
+//!   Adds support for the [jiff](https://docs.rs/jiff/latest/jiff/) crate.
+//!   This exposes methods to [`Cookie`] to retrieve the `Expires` and `Max-Age` attributes with jiff
+//!   specific types.
 //!
 //! * `chrono`
 //!
-//!     Adds support for the [chrono](https://docs.rs/chrono/latest/chrono/) crate.
-//!     This exposes methods to [`Cookie`] to retrieve the `Expires` and `Max-Age` attributes with
-//!     chrono specific types.
+//!   Adds support for the [chrono](https://docs.rs/chrono/latest/chrono/) crate.
+//!   This exposes methods to [`Cookie`] to retrieve the `Expires` and `Max-Age` attributes with
+//!   chrono specific types.
 //!
 //! * `time`
 //!
-//!     Adds support for the [time](https://docs.rs/time/latest/time/index.html) crate.
-//!     This exposes methods to [`Cookie`] to retrieve the `Expires` and `Max-Age` attributes with time
-//!     specific types.
+//!   Adds support for the [time](https://docs.rs/time/latest/time/index.html) crate.
+//!   This exposes methods to [`Cookie`] to retrieve the `Expires` and `Max-Age` attributes with time
+//!   specific types.
 //!
 //! * `percent-encode`
 //!
-//!     Parse/serialize [`Cookie`]s that are percent-encoded.
+//!   Parse/serialize [`Cookie`]s that are percent-encoded.
 //!
 //! * `axum`
 //!
-//!     Adds integration with the [axum](https://docs.rs/axum/latest/axum/) crate.
-//!     Implements [`FromRequestParts`](https://docs.rs/axum/latest/axum/extract/trait.FromRequestParts.html),
-//!     [`IntoResponse`](https://docs.rs/axum/latest/axum/response/trait.IntoResponse.html) and
-//!     [`IntoResponseParts`](https://docs.rs/axum/latest/axum/response/trait.IntoResponseParts.html),
+//!   Adds integration with the [axum](https://docs.rs/axum/latest/axum/) crate.
+//!   Implements [`FromRequestParts`](https://docs.rs/axum/latest/axum/extract/trait.FromRequestParts.html),
+//!   [`IntoResponse`](https://docs.rs/axum/latest/axum/response/trait.IntoResponse.html) and
+//!   [`IntoResponseParts`](https://docs.rs/axum/latest/axum/response/trait.IntoResponseParts.html),
 
 //!
 //! * `http`
 //!
-//!     Adds integration with the [http](https://docs.rs/http/latest/http/) crate.
-//!     Create a [`CookieJar`] from a [`HeaderMap`](https://docs.rs/http/latest/http/header/struct.HeaderMap.html).
-//!     Write a [`CookieJar`] to a [`HeaderMap`](https://docs.rs/http/latest/http/header/struct.HeaderMap.html).
+//!   Adds integration with the [http](https://docs.rs/http/latest/http/) crate.
+//!   Create a [`CookieJar`] from a [`HeaderMap`](https://docs.rs/http/latest/http/header/struct.HeaderMap.html).
+//!   Write a [`CookieJar`] to a [`HeaderMap`](https://docs.rs/http/latest/http/header/struct.HeaderMap.html).
 //!
 //!
 //! ### Honorable mention
