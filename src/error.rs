@@ -4,21 +4,26 @@ use std::fmt::Display;
 #[derive(Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Error {
-    // Name - value
+    /// No '=' found in the cookie string.
     EqualsNotFound,
+    /// Name value is empty.
     NameEmpty,
+    /// Name contains invalid character.
     InvalidName(char),
+    /// Value contains invalid character.
     InvalidValue(char),
 
-    // Expires
+    /// Unable to format the expires field.
     ExpiresFmt,
 
-    // cookie-value
+    /// Could not percent-decode the cookie.
     PercentDecodeError,
 
-    // Path
+    /// Path attribute contains an invalid character.
     InvalidPathValue(char),
+    /// Path attribute value is empty.
     EmptyPathValue,
+    /// Path does not start with a leading '/'.
     NoLeadingSlash,
 }
 
@@ -27,7 +32,9 @@ impl Display for Error {
         let err = match self {
             Error::EqualsNotFound => "No '=' found in the cookie",
             Error::NameEmpty => "The cookie name is empty",
-            Error::InvalidName(c) => "The cookie name contains an invalid character: {c}",
+            Error::InvalidName(c) => {
+                return write!(f, "The cookie name contains an invalid character: {c}");
+            }
             Error::InvalidValue(c) => {
                 return write!(f, "The cookie value contains an invalid character: {c}");
             }

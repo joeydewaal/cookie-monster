@@ -40,7 +40,7 @@ impl Cookie {
 
 impl Expires {
     /// Creates an [`Expires`] with a [`chrono::DateTime`] one year in the past.
-    pub(crate) fn remove_chrono() -> Self {
+    pub fn remove_chrono() -> Self {
         Self::from(Utc::now() - Duration::days(365))
     }
 }
