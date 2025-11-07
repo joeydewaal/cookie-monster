@@ -68,5 +68,5 @@ fn name_value_brackets_spaces_not_eq() {
 #[test]
 fn invalid() {
     assert_eq_parse!("foo=bar)", Ok(Cookie::new("foo", "bar)")));
-    assert_eq_parse!("foo)=bar", Err(Error::InvalidName));
+    assert_eq_parse!("foo)=bar", Err(Error::InvalidName(')')));
 }

@@ -52,8 +52,8 @@ impl Cookie {
         // 5.  If the name string is empty, ignore the set-cookie-string entirely.
         if name.is_empty() {
             return Err(Error::NameEmpty);
-        } else if !is_token(name) {
-            return Err(Error::InvalidName);
+        } else if let Some(token) = invalid_token(name) {
+            return Err(Error::InvalidName(token));
         }
 
         // Remove optional brackets.
@@ -129,12 +129,12 @@ pub fn trim_quotes(value: &str) -> &str {
 }
 
 #[inline]
-pub fn is_token(val: &str) -> bool {
-    val.chars().all(|c| match c {
+pub fn invalid_token(val: &str) -> Option<char> {
+    val.chars().find(|c| match c {
         '!' | '#' | '$' | '%' | '&' | '\'' | '*' | '+' | '-' | '.' | '^' | '_' | '`' | '|'
-        | '~' => true,
-        c if c.is_alphanumeric() => true,
-        _ => false,
+        | '~' => false,
+        c if c.is_alphanumeric() => false,
+        _ => true,
     })
 }
 

@@ -7,7 +7,7 @@ pub enum Error {
     // Name - value
     EqualsNotFound,
     NameEmpty,
-    InvalidName,
+    InvalidName(char),
     InvalidValue(char),
 
     // Expires
@@ -27,14 +27,14 @@ impl Display for Error {
         let err = match self {
             Error::EqualsNotFound => "No '=' found in the cookie",
             Error::NameEmpty => "The cookie name is empty",
-            Error::InvalidName => "The cookie name contains an invalid character",
+            Error::InvalidName(c) => "The cookie name contains an invalid character: {c}",
             Error::InvalidValue(c) => {
-                return write!(f, "The cookie value contains an invalid value {c}");
+                return write!(f, "The cookie value contains an invalid character: {c}");
             }
             Error::ExpiresFmt => "Failed to format the expires value",
             Error::PercentDecodeError => "An error occurred while decoding",
             Error::InvalidPathValue(c) => {
-                return write!(f, "The path attribute contains an invalid value ({c})");
+                return write!(f, "The path attribute contains an invalid character ({c})");
             }
             Error::EmptyPathValue => "The path attribute is empty",
             Error::NoLeadingSlash => "The path attribute does not start with a leading slash",

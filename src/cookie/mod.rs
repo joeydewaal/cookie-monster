@@ -177,8 +177,10 @@ impl Cookie {
         self.expires = expires.into();
     }
 
-    /// Get the Max-Age duration. This returns a [`std::time::Duration`], if you'd like a `time`,
-    /// `chrono` or `jiff` specific duration use the `max_age_{time,chrono,jiff}` method.
+    /// Get the Max-Age duration. This returns a [`std::time::Duration`].
+    ///
+    /// If you'd like a `time`, `chrono` or `jiff` specific duration use the
+    /// `max_age_{time,chrono,jiff}` methods.
     #[inline]
     pub fn max_age(&self) -> Option<Duration> {
         self.max_age.map(Duration::from_secs)
