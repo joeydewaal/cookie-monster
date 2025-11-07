@@ -49,6 +49,8 @@ impl Cookie {
     /// assert_eq!(cookie.name(), "hello");
     /// assert_eq!(cookie.value(), "world");
     /// ```
+    ///
+    /// For more options, see [`Cookie::build`].
     pub fn new<N, V>(name: N, value: V) -> Cookie
     where
         N: Into<Cow<'static, str>>,

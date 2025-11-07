@@ -52,6 +52,8 @@
 //! # Axum example
 //!
 //! ```rust
+//! # #[cfg(feature="axum")]
+//! # {
 //! use axum::response::IntoResponse;
 //! use cookie_monster::{Cookie, CookieJar, SameSite};
 //!
@@ -74,6 +76,7 @@
 //!     // Return the jar so the cookies are updated
 //!    jar
 //! }
+//! # }
 //! ```
 //!
 //!
