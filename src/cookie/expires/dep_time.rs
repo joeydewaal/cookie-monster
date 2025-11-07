@@ -37,7 +37,7 @@ impl Cookie {
 
 impl Expires {
     /// Creates an [`Expires`] with a [`OffsetDateTime`](time::OffsetDateTime) one year in the past.
-    pub(crate) fn remove_time() -> Self {
+    pub fn remove_time() -> Self {
         Self::from(OffsetDateTime::now_utc() - Duration::days(365))
     }
 }

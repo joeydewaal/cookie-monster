@@ -1,6 +1,6 @@
 use crate::{
     Error, SameSite,
-    cookie::parse::{find_invalid_cookie_value, is_token, trim_quotes},
+    cookie::parse::{find_invalid_cookie_value, invalid_token, trim_quotes},
 };
 
 use super::Cookie;
@@ -23,8 +23,8 @@ impl Cookie {
 
             if let Some(invalid_char) = find_invalid_cookie_value(trimmed_value) {
                 return Err(Error::InvalidValue(invalid_char));
-            } else if !is_token(name) {
-                return Err(Error::InvalidName);
+            } else if let Some(token) = invalid_token(name) {
+                return Err(Error::InvalidName(token));
             }
 
             let _ = write!(buf, "{name}={value}");

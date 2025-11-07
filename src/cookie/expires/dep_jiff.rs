@@ -36,7 +36,7 @@ impl Cookie {
 
 impl Expires {
     /// Creates an [`Expires`] with a [`Zoned`](jiff::Zoned) one year in the past.
-    pub(crate) fn remove_jiff() -> Self {
+    pub fn remove_jiff() -> Self {
         Self::from(&Zoned::now() - Span::new().years(1))
     }
 }
