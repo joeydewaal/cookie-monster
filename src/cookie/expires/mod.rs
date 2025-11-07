@@ -35,6 +35,9 @@ pub struct ExpVal {
 }
 
 impl Expires {
+    /// If one of the `time`, `chrono` or `jiff` features are enabled, the Expires tag is set to the
+    /// current time minus one year. If none of the those features are enabled, the Expires
+    /// attribute is set to 1 Jan 1970 00:00.
     pub fn remove() -> Self {
         #![allow(unreachable_code)]
 
@@ -54,7 +57,7 @@ impl Expires {
 impl Cookie {
     /// If the Expires attribute is not set, the expiration of the cookie is tied to the session
     /// with the user-agent.
-    pub fn is_expires_set(&self) -> bool {
+    pub fn expires_is_set(&self) -> bool {
         !matches!(self.expires, Expires::Session)
     }
 
@@ -85,7 +88,8 @@ impl PartialEq for Expires {
             (Expires::Remove, Expires::Remove) => true,
             (Expires::Session, Expires::Session) => true,
             (Expires::Exp(_s), Expires::Exp(_o)) => {
-                // TODO: double check this.
+                // When serializing, all the time, chrono and jiff fields are filled. If one
+                // matches it's enough to be equal.
                 #[cfg(feature = "time")]
                 if _s.time == _o.time {
                     return true;

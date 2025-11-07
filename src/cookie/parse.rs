@@ -3,14 +3,28 @@ use std::borrow::Cow;
 use crate::{Cookie, error::Error, util::TinyStr};
 
 impl Cookie {
-    pub fn parse_cookie(string: impl Into<String>) -> Result<Cookie, Error> {
+    /// Parses the given cookie header value. Errors when:
+    /// * No '=' is found.
+    /// * The name is empty.
+    /// * The name contains an invalid character.
+    /// * The cookie value contains an invalid character.
+    ///
+    /// Since this only parses a cookie header value, it does not parse any cookie attributes.
+    pub fn parse_cookie(string: impl Into<String>) -> crate::Result<Cookie> {
         Self::parse_inner(string.into(), |name, value| {
             Ok((Cow::Borrowed(name), Cow::Borrowed(value)))
         })
     }
 
+    /// Parses a percent encoded cookie value. Errors when:
+    /// * No '=' is found.
+    /// * The name is empty.
+    /// * The name contains an invalid character.
+    /// * The cookie value contains an invalid character.
+    ///
+    /// Since this only parses a cookie header value, it does not parse any cookie attributes.
     #[cfg(feature = "percent-encode")]
-    pub fn parse_cookie_encoded(string: impl Into<String>) -> Result<Cookie, Error> {
+    pub fn parse_cookie_encoded(string: impl Into<String>) -> crate::Result<Cookie> {
         use crate::cookie::encoding;
 
         Self::parse_inner(string.into(), encoding::decode_name_value)

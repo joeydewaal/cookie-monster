@@ -74,7 +74,7 @@ impl CookieBuilder {
     ///     .expires(Expires::remove())
     ///     .build();
     ///
-    /// assert!(cookie.is_expires_set());
+    /// assert!(cookie.expires_is_set());
     /// ```
     ///
     /// # Jiff
@@ -88,7 +88,7 @@ impl CookieBuilder {
     ///     .expires(Zoned::now())
     ///     .build();
     ///
-    /// # assert!(cookie.is_expires_set());
+    /// # assert!(cookie.expires_is_set());
     /// # }
     /// ```
     ///
@@ -103,7 +103,7 @@ impl CookieBuilder {
     ///     .expires(Utc::now())
     ///     .build();
     ///
-    /// # assert!(cookie.is_expires_set());
+    /// # assert!(cookie.expires_is_set());
     /// # }
     /// ```
     ///
@@ -118,7 +118,7 @@ impl CookieBuilder {
     ///     .expires(OffsetDateTime::now_utc())
     ///     .build();
     ///
-    /// # assert!(cookie.is_expires_set());
+    /// # assert!(cookie.expires_is_set());
     /// # }
     /// ```
     #[inline]
@@ -332,8 +332,8 @@ impl Borrow<Cookie> for CookieBuilder {
     }
 }
 
-impl Into<Cookie> for CookieBuilder {
-    fn into(self) -> Cookie {
-        self.0
+impl From<CookieBuilder> for Cookie {
+    fn from(value: CookieBuilder) -> Self {
+        value.build()
     }
 }

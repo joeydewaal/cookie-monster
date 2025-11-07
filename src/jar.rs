@@ -146,6 +146,10 @@ impl CookieJar {
     /// Removes the cookie from the local cookie store and issues a cookie with an Expires
     /// attribute in the past and Max-Age of 0 seconds.
     ///
+    /// If one of the `time`, `chrono` or `jiff` features are enabled, the Expires tag is set to the
+    /// current time minus one year. If none of the those features are enabled, the Expires
+    /// attribute is set to 1 Jan 1970 00:00.
+    ///
     /// **To ensure a cookie is removed from the user-agent, set the `Path` and `Domain` attributes
     /// with the same values that were used to create the cookie.**
     pub fn remove(&mut self, cookie: impl Into<Cookie>) {
@@ -155,8 +159,8 @@ impl CookieJar {
 
     /// Adds a cookie to the jar. If a cookie with the same name is already in the jar, it is
     /// replaced with the given cookie.
-    pub fn add(&mut self, cookie: Cookie) {
-        self.cookies.replace(HashCookie::New(cookie));
+    pub fn add(&mut self, cookie: impl Into<Cookie>) {
+        self.cookies.replace(HashCookie::New(cookie.into()));
     }
 
     #[allow(unused)]
