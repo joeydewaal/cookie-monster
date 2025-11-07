@@ -36,11 +36,11 @@
 //!
 //! * `axum`
 //!
-//!   Adds integration with the [axum](https://docs.rs/axum/latest/axum/) crate.
-//!   Implements [`FromRequestParts`](https://docs.rs/axum/latest/axum/extract/trait.FromRequestParts.html),
-//!   [`IntoResponse`](https://docs.rs/axum/latest/axum/response/trait.IntoResponse.html) and
-//!   [`IntoResponseParts`](https://docs.rs/axum/latest/axum/response/trait.IntoResponseParts.html),
-
+//!   Adds integration with the [axum](https://docs.rs/axum/latest/axum/) crate.  
+//!   Implements [`IntoResponse`](https://docs.rs/axum/latest/axum/response/trait.IntoResponse.html) and
+//!   [`IntoResponseParts`](https://docs.rs/axum/latest/axum/response/trait.IntoResponseParts.html)
+//!   for [`Cookie`] and [`CookieJar`].  
+//!   Implements [`FromRequestParts`](https://docs.rs/axum/latest/axum/extract/trait.FromRequestParts.html) only for [`CookieJar`]
 //!
 //! * `http`
 //!
