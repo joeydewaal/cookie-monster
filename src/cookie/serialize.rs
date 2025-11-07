@@ -7,6 +7,14 @@ use super::Cookie;
 use std::fmt::Write;
 
 impl Cookie {
+    // Serializes the cookie. Errors when:
+    // * The name is empty.
+    // * Name or value contain invalid cookie character.
+    // * Path attribute is empty.
+    // * Path attribute does not start with a leading '/'.
+    // * Path attribute contains an invalid cookie character.
+    //
+    // Ignores domains with invalid cookie characters.
     pub fn serialize(&self) -> crate::Result<String> {
         self.serialize_inner(|name, value, buf| {
             // Unencdoded values need manual validation of the characters.
@@ -24,6 +32,13 @@ impl Cookie {
         })
     }
 
+    // Serializes and percent encodes the cookie. Errors when:
+    // * The name is empty.
+    // * Path attribute is empty.
+    // * Path attribute does not start with a leading '/'.
+    // * Path attribute contains an invalid cookie character.
+    //
+    // Ignores domains with invalid cookie characters.
     #[cfg(feature = "percent-encode")]
     pub fn serialize_encoded(&self) -> crate::Result<String> {
         use crate::cookie::encoding::{encode_name, encode_value};

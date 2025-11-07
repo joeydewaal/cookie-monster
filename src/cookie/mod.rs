@@ -60,12 +60,17 @@ impl Cookie {
     /// Creates a cookie that can be used to remove the cookie from the user-agent. This sets the
     /// Expires attribute in the past and Max-Age to 0 seconds.
     ///
+    /// If one of the `time`, `chrono` or `jiff` features are enabled, the Expires tag is set to the
+    /// current time minus one year. If none of the those features are enabled, the Expires
+    /// attribute is set to 1 Jan 1970 00:00.
+    ///
     /// **To ensure a cookie is removed from the user-agent, set the `Path` and `Domain` attributes
     /// with the same values that were used to create the cookie.**
     ///
     /// # Note
-    /// You don't have to use this method with [`crate::CookieJar::remove`], the jar automatically set's
-    /// the Expires and Max-Age attributes.
+    /// You don't have to use this method in combination with
+    /// [`CookieJar::remove`](crate::CookieJar), the jar
+    /// automatically set's the Expires and Max-Age attributes.
     ///
     /// # Example
     /// ```rust
@@ -74,7 +79,7 @@ impl Cookie {
     /// let cookie = Cookie::remove("session");
     ///
     /// assert_eq!(cookie.max_age_secs(), Some(0));
-    /// assert!(cookie.is_expires_set());
+    /// assert!(cookie.expires_is_set());
     /// ```
     pub fn remove<N>(name: N) -> Cookie
     where
@@ -98,8 +103,8 @@ impl Cookie {
         }
     }
 
-    /// Build a new cookie. This returns a `CookieBuilder` that can be used to set other attribute
-    /// values.
+    /// Build a new cookie. This returns a [`CookieBuilder`](crate::CookieBuilder) that can be used
+    /// to  set other attribute values.
     ///
     /// # Example
     /// ```rust
@@ -122,7 +127,7 @@ impl Cookie {
     }
 
     /// Creates a [`CookieBuilder`] with the given name and an empty value. This can be used when
-    /// removing a cookie from a [`crate::CookieJar`].
+    /// removing a cookie from a [`CookieJar`](crate::CookieJar).
     ///
     /// # Example
     /// ```rust
@@ -170,7 +175,7 @@ impl Cookie {
         self.expires = expires.into();
     }
 
-    /// Get the Max-Age duration. This returns a `std::time::Duration`, if you'd like a `time`,
+    /// Get the Max-Age duration. This returns a [`std::time::Duration`], if you'd like a `time`,
     /// `chrono` or `jiff` specific duration use the `max_age_{time,chrono,jiff}` method.
     #[inline]
     pub fn max_age(&self) -> Option<Duration> {

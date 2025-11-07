@@ -74,7 +74,7 @@ impl CookieBuilder {
     ///     .expires(Expires::remove())
     ///     .build();
     ///
-    /// assert!(cookie.is_expires_set());
+    /// assert!(cookie.expires_is_set());
     /// ```
     ///
     /// # Jiff
@@ -88,7 +88,7 @@ impl CookieBuilder {
     ///     .expires(Zoned::now())
     ///     .build();
     ///
-    /// # assert!(cookie.is_expires_set());
+    /// # assert!(cookie.expires_is_set());
     /// # }
     /// ```
     ///
@@ -103,7 +103,7 @@ impl CookieBuilder {
     ///     .expires(Utc::now())
     ///     .build();
     ///
-    /// # assert!(cookie.is_expires_set());
+    /// # assert!(cookie.expires_is_set());
     /// # }
     /// ```
     ///
@@ -118,7 +118,7 @@ impl CookieBuilder {
     ///     .expires(OffsetDateTime::now_utc())
     ///     .build();
     ///
-    /// # assert!(cookie.is_expires_set());
+    /// # assert!(cookie.expires_is_set());
     /// # }
     /// ```
     #[inline]
