@@ -2,6 +2,7 @@
 [![CI/CD](https://github.com/joeydewaal/cookie-monster/actions/workflows/ci.yml/badge.svg)](https://github.com/joeydewaal/cookie-monster/actions/workflows/ci.yml)
 [![Current Crates.io Version](https://img.shields.io/crates/v/cookie-monster.svg)](https://crates.io/crates/cookie-monster)
 [![Documentation](https://docs.rs/cookie-monster/badge.svg)](https://docs.rs/cookie-monster)
+
 A Cookie library for parsing and managing HTTP Cookies.
 
 ### Features
