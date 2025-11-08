@@ -37,6 +37,33 @@ cookie-monster = { version = "0.1", features = ["axum"] }
 cookie-monster = { version = "0.1", features = ["http"] }
 ```
 
+### Axum example
+
+```rust
+use axum::response::IntoResponse;
+use cookie_monster::{Cookie, CookieJar, SameSite};
+
+static COOKIE_NAME: &str = "session";
+
+async fn handler(mut jar: CookieJar) -> impl IntoResponse {
+    if let Some(cookie) = jar.get(COOKIE_NAME) {
+        // Remove cookie
+        println!("Removing cookie {cookie:?}");
+        jar.remove(Cookie::named(COOKIE_NAME));
+    } else {
+        // Set cookie.
+        let cookie = Cookie::build(COOKIE_NAME, "hello, world")
+        .http_only()
+        .same_site(SameSite::Strict);
+
+        println!("Setting cookie {cookie:?}");
+        jar.add(cookie);
+    }
+    // Return the jar so the cookies are updated
+   jar
+}
+```
+
 ### Minimum Supported Rust Version (MSRV)
 The cookie-monster crate has rust version 1.85 as MSRV.
 
