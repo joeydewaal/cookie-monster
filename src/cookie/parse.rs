@@ -10,7 +10,7 @@ impl Cookie {
     /// * The cookie value contains an invalid character.
     ///
     /// Since this only parses a cookie header value, it does not parse any cookie attributes.
-    pub fn parse_cookie(string: impl Into<String>) -> crate::Result<Cookie> {
+    pub fn parse_cookie(string: impl Into<Box<str>>) -> crate::Result<Cookie> {
         Self::parse_inner(string.into(), |name, value| {
             Ok((Cow::Borrowed(name), Cow::Borrowed(value)))
         })
@@ -24,14 +24,14 @@ impl Cookie {
     ///
     /// Since this only parses a cookie header value, it does not parse any cookie attributes.
     #[cfg(feature = "percent-encode")]
-    pub fn parse_cookie_encoded(string: impl Into<String>) -> crate::Result<Cookie> {
+    pub fn parse_cookie_encoded(string: impl Into<Box<str>>) -> crate::Result<Cookie> {
         use crate::cookie::encoding;
 
         Self::parse_inner(string.into(), encoding::decode_name_value)
     }
 
     fn parse_inner(
-        mut string: String,
+        mut string: Box<str>,
         callback: impl for<'a> Fn(&'a str, &'a str) -> crate::Result<(Cow<'a, str>, Cow<'a, str>)>,
     ) -> Result<Cookie, Error> {
         let mut parts = SplitMut::new(&mut string);
@@ -63,6 +63,7 @@ impl Cookie {
             return Err(Error::InvalidValue(invalid_char));
         }
 
+        // Optionally decode the name and value.
         let (name, value) = callback(name, value)?;
 
         let name = TinyStr::from_cow_ref(name, parts.ptr);

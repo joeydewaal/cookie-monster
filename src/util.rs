@@ -3,6 +3,7 @@ use std::borrow::Cow;
 #[derive(Clone)]
 pub(crate) enum TinyStr {
     Static(&'static str),
+    // Using a Box<str> here unfortunately doesn't make this type any smaller.
     Owned(String),
     Indexed(usize, usize),
 }
