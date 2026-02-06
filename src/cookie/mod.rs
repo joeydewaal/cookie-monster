@@ -136,7 +136,7 @@ impl Cookie {
     /// ```rust
     /// use cookie_monster::{Cookie, CookieJar};
     ///
-    /// let mut jar = CookieJar::empty();
+    /// let mut jar = CookieJar::new();
     /// jar.remove(Cookie::named("session").path("/login"));
     ///
     /// assert!(jar.get("session").is_none());
