@@ -164,7 +164,7 @@ impl CookieBuilder {
         self
     }
 
-    /// Retuns the Max-Age attribute of the cookie.
+    /// Returns the Max-Age attribute of the cookie.
     pub fn get_max_age(&self) -> Option<Duration> {
         self.0.max_age()
     }
@@ -217,7 +217,7 @@ impl CookieBuilder {
         self
     }
 
-    /// Retuns the Path attribute of the cookie.
+    /// Returns the Path attribute of the cookie.
     pub fn get_path(&self) -> Option<&str> {
         self.0.path()
     }
