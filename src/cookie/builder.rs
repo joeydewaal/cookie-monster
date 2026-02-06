@@ -164,6 +164,11 @@ impl CookieBuilder {
         self
     }
 
+    /// Retuns the Max-Age attribute of the cookie.
+    pub fn get_max_age(&self) -> Option<Duration> {
+        self.0.max_age()
+    }
+
     /// Sets the Domain attribute of the cookie.
     ///
     /// # Note
@@ -210,6 +215,11 @@ impl CookieBuilder {
     pub fn path<D: Into<Cow<'static, str>>>(mut self, path: D) -> Self {
         self.0.set_path(path);
         self
+    }
+
+    /// Retuns the Path attribute of the cookie.
+    pub fn get_path(&self) -> Option<&str> {
+        self.0.path()
     }
 
     /// Sets the Secure attribute of the cookie.

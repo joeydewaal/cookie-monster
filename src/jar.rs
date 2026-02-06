@@ -89,7 +89,7 @@ impl Debug for HashCookie {
 
 impl CookieJar {
     /// Creates an empty `CookieJar`.
-    pub fn empty() -> Self {
+    pub fn new() -> Self {
         Self::default()
     }
 
@@ -115,7 +115,7 @@ impl CookieJar {
     // Creates a `CookieJar` from an iterator of cookies. It is assumed that the cookies are
     // __original__. E.g. from a `Cookie` header value.
     pub fn from_original<T: IntoIterator<Item = Cookie>>(cookies: T) -> Self {
-        let mut jar = Self::empty();
+        let mut jar = Self::new();
 
         for cookie in cookies {
             jar.add_original(cookie);
@@ -152,9 +152,13 @@ impl CookieJar {
     ///
     /// **To ensure a cookie is removed from the user-agent, set the `Path` and `Domain` attributes
     /// with the same values that were used to create the cookie.**
-    pub fn remove(&mut self, cookie: impl Into<Cookie>) {
+    pub fn remove(&mut self, cookie: impl Into<Cookie>) -> Option<Cookie> {
         let cookie = HashCookie::Removal(cookie.into().into_remove());
-        self.cookies.replace(cookie);
+        self.cookies.replace(cookie).and_then(|c| match c {
+            HashCookie::Original(cookie) => Some(cookie),
+            HashCookie::New(cookie) => Some(cookie),
+            HashCookie::Removal(_) => None,
+        })
     }
 
     /// Adds a cookie to the jar. If a cookie with the same name is already in the jar, it is

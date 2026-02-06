@@ -43,7 +43,7 @@ impl IntoResponseParts for Cookie {
             .ok()
             .and_then(|string| string.parse().ok())
         {
-            res.headers_mut().insert("set-cookie", cookie);
+            res.headers_mut().append("set-cookie", cookie);
         }
         Ok(res)
     }

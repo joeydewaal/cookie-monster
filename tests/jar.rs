@@ -55,7 +55,7 @@ fn basic_remove() {
     );
 
     // Empty jar
-    let mut jar = CookieJar::empty();
+    let mut jar = CookieJar::new();
 
     jar.remove(Cookie::new("theme", ""));
 
@@ -70,7 +70,7 @@ fn basic_remove() {
 
 #[test]
 fn basic_reassign() {
-    let mut jar = CookieJar::empty();
+    let mut jar = CookieJar::new();
 
     jar.add_original(Cookie::new("theme", "val"));
 
