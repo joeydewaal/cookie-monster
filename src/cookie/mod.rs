@@ -324,6 +324,7 @@ impl Debug for Cookie {
             .field("http_only", &self.http_only())
             .field("partitioned", &self.partitioned())
             .field("expires", &self.expires)
+            .field("same_site", &self.same_site)
             .finish()
     }
 }

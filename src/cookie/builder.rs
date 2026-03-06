@@ -49,6 +49,12 @@ impl CookieBuilder {
         self.0.name()
     }
 
+    /// Sets the name of the cookie.
+    #[inline]
+    pub fn set_name<N: Into<Cow<'static, str>>>(&mut self, name: N) {
+        self.0.set_name(name);
+    }
+
     /// Sets the value of the cookie.
     #[inline]
     pub fn value<V: Into<Cow<'static, str>>>(mut self, value: V) -> Self {
@@ -59,6 +65,14 @@ impl CookieBuilder {
     /// Returns the value of the cookie.
     pub fn get_value(&self) -> &str {
         self.0.value()
+    }
+
+    /// Sets the value of the cookie.
+    pub fn set_value<V>(&mut self, value: V)
+    where
+        V: Into<Cow<'static, str>>,
+    {
+        self.0.value = value.into().into();
     }
 
     /// Sets the Expires attribute of the cookie.
@@ -127,6 +141,11 @@ impl CookieBuilder {
         self
     }
 
+    /// Sets the Expires attribute of the cookie.
+    pub fn set_expires(&mut self, expiration: impl Into<Expires>) {
+        self.0.set_expires(expiration.into());
+    }
+
     /// Sets the Max-Age attribute of the cookie.
     ///
     /// # Example
@@ -143,6 +162,11 @@ impl CookieBuilder {
     pub fn max_age_secs(mut self, max_age_secs: u64) -> Self {
         self.0.set_max_age_secs(max_age_secs);
         self
+    }
+
+    /// Sets the Max-Age attribute in seconds.
+    pub fn set_max_age_secs(&mut self, max_age_secs: u64) {
+        self.0.set_max_age_secs(max_age_secs);
     }
 
     /// Sets the Max-Age attribute of the cookie.
@@ -169,6 +193,12 @@ impl CookieBuilder {
         self.0.max_age()
     }
 
+    /// Sets the Max-Age attribute of the cookie.
+    #[inline]
+    pub fn set_max_age(&mut self, max_age: Duration) {
+        self.0.set_max_age(max_age);
+    }
+
     /// Sets the Domain attribute of the cookie.
     ///
     /// # Note
@@ -189,6 +219,12 @@ impl CookieBuilder {
     pub fn domain<D: Into<Cow<'static, str>>>(mut self, domain: D) -> Self {
         self.0.set_domain(domain);
         self
+    }
+
+    /// Sets the Domain attribute of the cookie.
+    #[inline]
+    pub fn set_domain<D: Into<Cow<'static, str>>>(&mut self, domain: D) {
+        self.0.set_domain(domain);
     }
 
     /// Sets the Path attribute of the cookie.
@@ -220,6 +256,12 @@ impl CookieBuilder {
     /// Returns the Path attribute of the cookie.
     pub fn get_path(&self) -> Option<&str> {
         self.0.path()
+    }
+
+    /// Sets the Path attribute of the cookie.
+    #[inline]
+    pub fn set_path<D: Into<Cow<'static, str>>>(&mut self, path: D) {
+        self.0.set_path(path);
     }
 
     /// Sets the Secure attribute of the cookie.
