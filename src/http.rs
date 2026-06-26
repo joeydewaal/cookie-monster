@@ -3,6 +3,11 @@ use http::HeaderMap;
 use crate::{Cookie, CookieJar};
 
 impl CookieJar {
+    /// Builds a `CookieJar` from the `Cookie` request headers, percent-decoding
+    /// names and values and ignoring cookies that fail to parse.
+    ///
+    /// Duplicate cookie names resolve to the **last** occurrence; see
+    /// [`from_cookie`](CookieJar::from_cookie) for the cookie-shadowing note.
     pub fn from_headers(headers: &HeaderMap) -> Self {
         let iter = headers
             .get_all("cookie")
