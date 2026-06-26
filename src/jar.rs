@@ -95,12 +95,31 @@ impl CookieJar {
 
     /// Parses the given `cookie` header value and return a `CookieJar`. This function ignores
     /// cookies that were not able to be parsed.
+    ///
+    /// # Duplicate names
+    /// If the header contains the same cookie name more than once, the **last**
+    /// occurrence wins. This matches the `cookie` crate, `axum-extra`, Python's
+    /// `SimpleCookie` and ASP.NET Core.
+    ///
+    /// Duplicate-name resolution is **not** a security boundary. To defend
+    /// against cookie shadowing/tossing, use `__Host-`/`__Secure-` name prefixes
+    /// and/or reject requests that carry duplicate cookie names.
+    ///
+    /// ```rust
+    /// use cookie_monster::CookieJar;
+    ///
+    /// let jar = CookieJar::from_cookie("name=first; name=second");
+    /// assert_eq!(jar.get("name").map(|c| c.value()), Some("second"));
+    /// ```
     pub fn from_cookie(header: &str) -> Self {
         Self::from_original(header.split(';').flat_map(Cookie::parse_cookie))
     }
 
     /// Parses the given `cookie` header value and return a `CookieJar`. The cookie name and values
     /// are percent-decoded. Cookies that were not able to be parsed are ignored.
+    ///
+    /// Like [`from_cookie`](Self::from_cookie), duplicate cookie names resolve to
+    /// the **last** occurrence; see its docs for the cookie-shadowing note.
     #[cfg(feature = "percent-encode")]
     pub fn from_encoded_cookie(header: &str) -> Self {
         Self::from_original(header.split(';').flat_map(Cookie::parse_cookie_encoded))
@@ -108,6 +127,9 @@ impl CookieJar {
 
     /// Adds an __original__ cookie to the jar. These are never sent back to the
     /// user-agent, but are visible in the cookie jar.
+    ///
+    /// If a cookie with the same name is already present it is replaced
+    /// (last-wins), matching [`add`](Self::add).
     pub fn add_original(&mut self, cookie: Cookie) {
         self.cookies.replace(HashCookie::Original(cookie));
     }
