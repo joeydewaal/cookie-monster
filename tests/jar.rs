@@ -69,6 +69,18 @@ fn basic_remove() {
 }
 
 #[test]
+fn add_original_replaces_duplicate_name() {
+    let mut jar = CookieJar::new();
+
+    jar.add_original(Cookie::new("theme", "first"));
+    jar.add_original(Cookie::new("theme", "second"));
+
+    // A later original cookie with the same name should win, matching the
+    // last-write-wins behaviour of `add`/`remove`.
+    assert_eq!(jar.get("theme").map(Cookie::value), Some("second"));
+}
+
+#[test]
 fn basic_reassign() {
     let mut jar = CookieJar::new();
 

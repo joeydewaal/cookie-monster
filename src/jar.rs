@@ -109,7 +109,7 @@ impl CookieJar {
     /// Adds an __original__ cookie to the jar. These are never sent back to the
     /// user-agent, but are visible in the cookie jar.
     pub fn add_original(&mut self, cookie: Cookie) {
-        self.cookies.insert(HashCookie::Original(cookie));
+        self.cookies.replace(HashCookie::Original(cookie));
     }
 
     // Creates a `CookieJar` from an iterator of cookies. It is assumed that the cookies are
