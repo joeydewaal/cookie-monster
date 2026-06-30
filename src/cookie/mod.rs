@@ -9,7 +9,7 @@ mod domain;
 pub(crate) mod expires;
 mod parse;
 mod path;
-mod prefix;
+pub(crate) mod prefix;
 pub(crate) mod same_site;
 mod serialize;
 

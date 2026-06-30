@@ -5,8 +5,8 @@ use crate::Error;
 
 use super::{Cookie, CookieBuilder};
 
-const HOST_PREFIX: &str = "__Host-";
-const SECURE_PREFIX: &str = "__Secure-";
+pub(crate) const HOST_PREFIX: &str = "__Host-";
+pub(crate) const SECURE_PREFIX: &str = "__Secure-";
 
 /// A recognized cookie name prefix as defined by RFC 6265bis §4.1.3.
 pub(crate) enum CookiePrefix {

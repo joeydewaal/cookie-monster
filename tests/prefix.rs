@@ -1,4 +1,4 @@
-use cookie_monster::{Cookie, Error, SameSite};
+use cookie_monster::{Cookie, CookieJar, Error, SameSite};
 
 #[test]
 fn host_constructor_builds_valid_cookie() {
@@ -92,4 +92,41 @@ fn serialize_encoded_enforces_prefix_rules() {
     cookie.set_secure(false);
 
     assert_eq!(cookie.serialize_encoded(), Err(Error::HostPrefixNotSecure));
+}
+
+#[test]
+fn jar_finds_host_cookie_by_logical_name() {
+    let jar = CookieJar::from_cookie("__Host-id=abc");
+
+    // The unprefixed (logical) name resolves to the parsed cookie.
+    assert_eq!(jar.get("id").map(|c| c.value()), Some("abc"));
+    // The prefix is preserved on the stored cookie (it is the trust signal).
+    assert_eq!(jar.get("id").map(|c| c.name()), Some("__Host-id"));
+    // The full name still resolves too.
+    assert_eq!(jar.get("__Host-id").map(|c| c.value()), Some("abc"));
+}
+
+#[test]
+fn jar_finds_secure_cookie_by_logical_name() {
+    let jar = CookieJar::from_cookie("__Secure-sid=xyz");
+
+    assert_eq!(jar.get("sid").map(|c| c.value()), Some("xyz"));
+}
+
+#[test]
+fn non_prefixed_cookie_cannot_shadow_prefixed() {
+    // A plain `id` cookie must never be returned in place of the legit `__Host-id`,
+    // regardless of header order.
+    let jar = CookieJar::from_cookie("__Host-id=good; id=evil");
+    assert_eq!(jar.get("id").map(|c| c.value()), Some("good"));
+
+    let jar = CookieJar::from_cookie("id=evil; __Host-id=good");
+    assert_eq!(jar.get("id").map(|c| c.value()), Some("good"));
+}
+
+#[test]
+fn host_prefix_preferred_over_secure_for_logical_name() {
+    let jar = CookieJar::from_cookie("__Secure-id=sec; __Host-id=host");
+
+    assert_eq!(jar.get("id").map(|c| c.value()), Some("host"));
 }
