@@ -4,6 +4,20 @@
 //! Exposes types like [`Cookie`] and [`CookieJar`] for working with HTTP cookies. This crate
 //! focuses on server side applications. The main goals are simplicity and ease of use.
 //!
+//! # Prefix cookies
+//! [`Cookie::host`] and [`Cookie::secure`] build cookies that use the `__Host-` and `__Secure-`
+//! name prefixes ([RFC 6265bis §4.1.3](https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis#section-4.1.3)).
+//! They prepend the prefix and set the attributes the prefix requires. The prefix rules are
+//! enforced when the cookie is serialized, so a prefixed cookie that is later mutated into an
+//! invalid state fails to serialize with a detailed [`Error`].
+//!
+//! ```rust
+//! use cookie_monster::Cookie;
+//!
+//! let cookie = Cookie::host("id", "abc").build();
+//! assert_eq!(cookie.serialize().as_deref(), Ok("__Host-id=abc; Path=/; Secure"));
+//! ```
+//!
 //! # Usage
 //! Add cookie-monster in your Cargo.toml:
 //! ```toml

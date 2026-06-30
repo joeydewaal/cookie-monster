@@ -54,6 +54,8 @@ impl Cookie {
         &self,
         callback: impl Fn(&str, &str, &mut String) -> crate::Result<()>,
     ) -> crate::Result<String> {
+        self.check_prefix()?;
+
         let value = self.value();
         let name = self.name();
         let domain = self.domain();
@@ -87,15 +89,15 @@ impl Cookie {
         self.serialize_path(&mut buf)?;
 
         // SameSite=None and Partitioned cookies need the Secure attribute
-        if self.secure() || self.partitioned() || self.same_site() == Some(SameSite::None) {
+        if self.is_secure() || self.is_partitioned() || self.same_site() == Some(SameSite::None) {
             buf.push_str("; Secure");
         }
 
-        if self.http_only() {
+        if self.is_http_only() {
             buf.push_str("; HttpOnly");
         }
 
-        if self.partitioned() {
+        if self.is_partitioned() {
             buf.push_str("; Partitioned");
         }
 
