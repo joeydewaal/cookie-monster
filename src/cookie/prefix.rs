@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use std::fmt::Display;
 
 use crate::Error;
 
@@ -46,12 +47,11 @@ impl Cookie {
     /// assert_eq!(cookie.path(), Some("/"));
     /// assert_eq!(cookie.serialize().as_deref(), Ok("__Host-id=abc; Path=/; Secure"));
     /// ```
-    pub fn host<N, V>(name: N, value: V) -> CookieBuilder
+    pub fn host<V>(name: impl Display, value: V) -> CookieBuilder
     where
-        N: Into<Cow<'static, str>>,
         V: Into<Cow<'static, str>>,
     {
-        let name = format!("{HOST_PREFIX}{}", name.into());
+        let name = format!("{HOST_PREFIX}{name}");
         CookieBuilder::new(name, value).secure().path("/")
     }
 
@@ -72,12 +72,11 @@ impl Cookie {
     /// assert!(cookie.is_secure());
     /// assert_eq!(cookie.serialize().as_deref(), Ok("__Secure-id=abc; Secure"));
     /// ```
-    pub fn secure<N, V>(name: N, value: V) -> CookieBuilder
+    pub fn secure<V>(name: impl Display, value: V) -> CookieBuilder
     where
-        N: Into<Cow<'static, str>>,
         V: Into<Cow<'static, str>>,
     {
-        let name = format!("{SECURE_PREFIX}{}", name.into());
+        let name = format!("{SECURE_PREFIX}{name}");
         CookieBuilder::new(name, value).secure()
     }
 
