@@ -11,8 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `Cookie::host` and `Cookie::secure` constructors for building `__Host-` / `__Secure-`
   prefixed cookies ([RFC 6265bis §4.1.3](https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis#section-4.1.3)).
-  The prefix rules are validated during serialization; a prefixed cookie that violates them
-  fails to serialize with a detailed `Error`.
+  They prepend the prefix and set the attributes it requires as defaults, which can be
+  overridden to build non-standard cookies.
+- `Cookie::prefix` returns the recognized name prefix as a `CookiePrefix` (`Host` / `Secure`).
+  The flavour is detected from the cookie name and stored on the cookie, both when it is built
+  and when it is parsed.
 - `CookieJar::get` now resolves an unprefixed (logical) name to a `__Host-` / `__Secure-`
   prefixed cookie, preferring `__Host-` over `__Secure-` over no prefix. A non-prefixed cookie
   can therefore never shadow a prefixed one of the same logical name, and a cookie set with

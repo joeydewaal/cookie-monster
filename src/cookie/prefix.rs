@@ -1,16 +1,21 @@
 use std::borrow::Cow;
 use std::fmt::Display;
 
-use crate::Error;
-
 use super::{Cookie, CookieBuilder};
 
 pub(crate) const HOST_PREFIX: &str = "__Host-";
 pub(crate) const SECURE_PREFIX: &str = "__Secure-";
 
-/// A recognized cookie name prefix as defined by RFC 6265bis §4.1.3.
-pub(crate) enum CookiePrefix {
+/// A recognized cookie name prefix as defined by
+/// [RFC 6265bis §4.1.3](https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis#section-4.1.3).
+///
+/// The prefix is stored on the [`Cookie`] and can be read with [`Cookie::prefix`]. It is
+/// detected from the cookie name, both when a cookie is created and when one is parsed.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum CookiePrefix {
+    /// The `__Host-` prefix.
     Host,
+    /// The `__Secure-` prefix.
     Secure,
 }
 
@@ -30,11 +35,13 @@ impl Cookie {
     /// Builds a `__Host-` prefixed cookie.
     ///
     /// The `__Host-` prefix is prepended to `name`, the `Secure` attribute is set and the
-    /// `Path` attribute is set to `/`. A `__Host-` cookie must not have a `Domain` attribute.
+    /// `Path` attribute is set to `/`. These are the attributes the prefix requires per
+    /// [RFC 6265bis §4.1.3](https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis#section-4.1.3),
+    /// but they are only defaults: nothing stops you from changing the `Path`, adding a
+    /// `Domain` or clearing `Secure` afterwards to build a non-standard cookie.
     ///
-    /// If the returned cookie is later mutated so it violates these rules (for example by
-    /// adding a `Domain`, changing the `Path`, or clearing `Secure`), serializing it fails
-    /// with a detailed [`Error`](crate::Error).
+    /// The [`CookiePrefix::Host`] flavour is stored on the cookie and can be read with
+    /// [`Cookie::prefix`].
     ///
     /// # Example
     /// ```rust
@@ -57,10 +64,13 @@ impl Cookie {
 
     /// Builds a `__Secure-` prefixed cookie.
     ///
-    /// The `__Secure-` prefix is prepended to `name` and the `Secure` attribute is set.
+    /// The `__Secure-` prefix is prepended to `name` and the `Secure` attribute is set. The
+    /// `Secure` attribute is what the prefix requires per
+    /// [RFC 6265bis §4.1.3](https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis#section-4.1.3),
+    /// but it is only a default: you may clear it afterwards to build a non-standard cookie.
     ///
-    /// If the returned cookie is later mutated so it violates these rules (for example by
-    /// clearing `Secure`), serializing it fails with a detailed [`Error`](crate::Error).
+    /// The [`CookiePrefix::Secure`] flavour is stored on the cookie and can be read with
+    /// [`Cookie::prefix`].
     ///
     /// # Example
     /// ```rust
@@ -78,32 +88,5 @@ impl Cookie {
     {
         let name = format!("{SECURE_PREFIX}{name}");
         CookieBuilder::new(name, value).secure()
-    }
-
-    /// Validates the cookie against the rules implied by its name prefix.
-    ///
-    /// Returns `Ok(())` when the cookie has no recognized prefix.
-    pub(crate) fn check_prefix(&self) -> crate::Result<()> {
-        match detect(self.name()) {
-            Some(CookiePrefix::Host) => {
-                if !self.is_secure() {
-                    return Err(Error::HostPrefixNotSecure);
-                }
-                if self.domain().is_some() {
-                    return Err(Error::HostPrefixHasDomain);
-                }
-                if self.path() != Some("/") {
-                    return Err(Error::HostPrefixBadPath);
-                }
-                Ok(())
-            }
-            Some(CookiePrefix::Secure) => {
-                if !self.is_secure() {
-                    return Err(Error::SecurePrefixNotSecure);
-                }
-                Ok(())
-            }
-            None => Ok(()),
-        }
     }
 }

@@ -18,6 +18,7 @@ mod encoding;
 
 pub use builder::CookieBuilder;
 use expires::Expires;
+pub use prefix::CookiePrefix;
 
 use crate::{SameSite, util::TinyStr};
 
@@ -37,6 +38,8 @@ pub struct Cookie {
     http_only: bool,
     partitioned: bool,
     same_site: Option<SameSite>,
+    // The recognized name prefix, detected from `name`. Kept in sync whenever the name changes.
+    prefix: Option<CookiePrefix>,
 }
 
 impl Cookie {
@@ -58,7 +61,9 @@ impl Cookie {
         N: Into<Cow<'static, str>>,
         V: Into<Cow<'static, str>>,
     {
-        Self::new_inner(TinyStr::from(name), TinyStr::from(value))
+        let mut cookie = Self::new_inner(TinyStr::from(name), TinyStr::from(value));
+        cookie.refresh_prefix();
+        cookie
     }
 
     /// Creates a cookie that can be used to remove the cookie from the user-agent. This sets the
@@ -156,9 +161,27 @@ impl Cookie {
     }
 
     /// Set the cookie name.
+    ///
+    /// This also updates the stored [prefix](Self::prefix) flavour to match the new name.
     #[inline]
     pub fn set_name<N: Into<Cow<'static, str>>>(&mut self, name: N) {
-        self.name = TinyStr::from(name)
+        self.name = TinyStr::from(name);
+        self.refresh_prefix();
+    }
+
+    /// Returns the recognized name prefix of the cookie, if any.
+    ///
+    /// The prefix is detected from the cookie name (case-sensitively) when the cookie is
+    /// created, parsed or renamed. See [`Cookie::host`] and [`Cookie::secure`].
+    #[inline]
+    pub fn prefix(&self) -> Option<CookiePrefix> {
+        self.prefix
+    }
+
+    /// Recomputes the stored prefix flavour from the current name.
+    #[inline]
+    pub(crate) fn refresh_prefix(&mut self) {
+        self.prefix = prefix::detect(self.name());
     }
 
     /// Get the cookie value. This does not trim `"` characters.
@@ -326,6 +349,7 @@ impl Debug for Cookie {
             .field("partitioned", &self.is_partitioned())
             .field("expires", &self.expires)
             .field("same_site", &self.same_site)
+            .field("prefix", &self.prefix)
             .finish()
     }
 }

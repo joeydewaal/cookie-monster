@@ -54,8 +54,6 @@ impl Cookie {
         &self,
         callback: impl Fn(&str, &str, &mut String) -> crate::Result<()>,
     ) -> crate::Result<String> {
-        self.check_prefix()?;
-
         let value = self.value();
         let name = self.name();
         let domain = self.domain();

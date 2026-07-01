@@ -25,15 +25,6 @@ pub enum Error {
     EmptyPathValue,
     /// Path does not start with a leading '/'.
     NoLeadingSlash,
-
-    /// A `__Host-` prefixed cookie has a Domain attribute.
-    HostPrefixHasDomain,
-    /// A `__Host-` prefixed cookie's Path attribute is not exactly `/`.
-    HostPrefixBadPath,
-    /// A `__Host-` prefixed cookie lacks the Secure attribute.
-    HostPrefixNotSecure,
-    /// A `__Secure-` prefixed cookie lacks the Secure attribute.
-    SecurePrefixNotSecure,
 }
 
 impl Display for Error {
@@ -54,14 +45,6 @@ impl Display for Error {
             }
             Error::EmptyPathValue => "The path attribute is empty",
             Error::NoLeadingSlash => "The path attribute does not start with a leading slash",
-            Error::HostPrefixHasDomain => {
-                "A `__Host-` prefixed cookie must not have a Domain attribute"
-            }
-            Error::HostPrefixBadPath => {
-                "A `__Host-` prefixed cookie must have its Path attribute set to `/`"
-            }
-            Error::HostPrefixNotSecure => "A `__Host-` prefixed cookie must be Secure",
-            Error::SecurePrefixNotSecure => "A `__Secure-` prefixed cookie must be Secure",
         };
 
         f.write_str(err)

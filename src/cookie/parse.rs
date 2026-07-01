@@ -71,6 +71,8 @@ impl Cookie {
 
         let mut cookie = Cookie::new_inner(name, value);
         cookie.raw_value = Some(string);
+        // The name may be indexed into `raw_value`, so detect the prefix only after it is set.
+        cookie.refresh_prefix();
         Ok(cookie)
     }
 }
