@@ -63,7 +63,10 @@ impl Cookie {
             return Err(Error::NameEmpty);
         }
 
-        let buf_len = name.len()
+        let prefix = self.prefix.map(|p| p.as_str()).unwrap_or_default();
+
+        let buf_len = prefix.len()
+            + name.len()
             + value.len()
             + domain.map(str::len).unwrap_or_default()
             + path.map(str::len).unwrap_or_default();
@@ -71,6 +74,9 @@ impl Cookie {
         // 110 is derived from typical length of cookie attributes
         // see RFC 6265 Sec 4.1.
         let mut buf = String::with_capacity(buf_len + 110);
+
+        // Re-apply the recognized name prefix (`__Host-` / `__Secure-`), if any.
+        buf.push_str(prefix);
 
         // Write name and value
         // Validation happens in the callback.
@@ -87,15 +93,15 @@ impl Cookie {
         self.serialize_path(&mut buf)?;
 
         // SameSite=None and Partitioned cookies need the Secure attribute
-        if self.secure() || self.partitioned() || self.same_site() == Some(SameSite::None) {
+        if self.is_secure() || self.is_partitioned() || self.same_site() == Some(SameSite::None) {
             buf.push_str("; Secure");
         }
 
-        if self.http_only() {
+        if self.is_http_only() {
             buf.push_str("; HttpOnly");
         }
 
-        if self.partitioned() {
+        if self.is_partitioned() {
             buf.push_str("; Partitioned");
         }
 

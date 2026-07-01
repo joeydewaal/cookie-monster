@@ -60,3 +60,8 @@ path = "tests/serialize/tests.rs"
 [[test]]
 name = "jar"
 path = "tests/jar.rs"
+
+# prefix cookie tests
+[[test]]
+name = "prefix"
+path = "tests/prefix.rs"

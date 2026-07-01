@@ -25,8 +25,8 @@ impl CookieBuilder {
     ///     .http_only()
     ///     .build();
     ///
-    /// assert!(cookie.secure());
-    /// assert!(cookie.http_only());
+    /// assert!(cookie.is_secure());
+    /// assert!(cookie.is_http_only());
     /// ```
     #[inline]
     pub fn new<N, V>(name: N, value: V) -> CookieBuilder
@@ -53,6 +53,13 @@ impl CookieBuilder {
     #[inline]
     pub fn set_name<N: Into<Cow<'static, str>>>(&mut self, name: N) {
         self.0.set_name(name);
+    }
+
+    /// Stores the cookie name prefix flavour. Used by [`Cookie::host`] / [`Cookie::secure`].
+    #[inline]
+    pub(crate) fn with_prefix(mut self, prefix: super::prefix::CookiePrefix) -> Self {
+        self.0.prefix = Some(prefix);
+        self
     }
 
     /// Sets the value of the cookie.
@@ -274,7 +281,7 @@ impl CookieBuilder {
     ///     .secure()
     ///     .build();
     ///
-    /// assert!(cookie.secure());
+    /// assert!(cookie.is_secure());
     /// ```
     #[inline]
     pub fn secure(mut self) -> Self {
@@ -299,7 +306,7 @@ impl CookieBuilder {
     ///     .http_only()
     ///     .build();
     ///
-    /// assert!(cookie.http_only());
+    /// assert!(cookie.is_http_only());
     /// ```
     #[inline]
     pub fn http_only(mut self) -> Self {
@@ -327,7 +334,7 @@ impl CookieBuilder {
     ///     .partitioned()
     ///     .build();
     ///
-    /// assert!(cookie.partitioned());
+    /// assert!(cookie.is_partitioned());
     /// ```
     #[inline]
     pub fn partitioned(self) -> Self {

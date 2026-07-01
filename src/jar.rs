@@ -101,9 +101,11 @@ impl CookieJar {
     /// occurrence wins. This matches the `cookie` crate, `axum-extra`, Python's
     /// `SimpleCookie` and ASP.NET Core.
     ///
-    /// Duplicate-name resolution is **not** a security boundary. To defend
-    /// against cookie shadowing/tossing, use `__Host-`/`__Secure-` name prefixes
-    /// and/or reject requests that carry duplicate cookie names.
+    /// Duplicate-name resolution is **not** a security boundary. Note that the
+    /// `__Host-` / `__Secure-` prefix is stripped from the name when parsing, so a
+    /// prefixed cookie and a plain cookie of the same logical name collide here and the
+    /// last one wins. If you rely on a prefix as a trust signal, reject requests that
+    /// carry duplicate cookie names.
     ///
     /// ```rust
     /// use cookie_monster::CookieJar;
@@ -147,6 +149,9 @@ impl CookieJar {
     }
 
     /// Get a cookie by name. Gives back either an __original__ or newly added cookie.
+    ///
+    /// Parsing strips the `__Host-` / `__Secure-` prefix from the cookie name, so a cookie
+    /// received (or built) with a prefix is looked up by its logical (unprefixed) name.
     pub fn get(&self, name: &str) -> Option<&Cookie> {
         self.cookies.get(name).and_then(|c| match c {
             HashCookie::New(c) | HashCookie::Original(c) => Some(c),

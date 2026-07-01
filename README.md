@@ -64,6 +64,21 @@ async fn handler(mut jar: CookieJar) -> impl IntoResponse {
 }
 ```
 
+### Prefix cookies
+`Cookie::host` and `Cookie::secure` build cookies using the `__Host-` and `__Secure-` name
+prefixes (RFC 6265bis §4.1.3). They set the attributes the prefix requires as defaults (which
+you can override to build non-standard cookies) and apply the prefix to the name on
+serialization. Parsing strips a recognized prefix from the name, so a prefixed cookie is looked
+up in a `CookieJar` by its logical (unprefixed) name.
+
+```rust
+use cookie_monster::Cookie;
+
+let cookie = Cookie::host("id", "abc").build();
+assert_eq!(cookie.name(), "id");
+assert_eq!(cookie.serialize().as_deref(), Ok("__Host-id=abc; Path=/; Secure"));
+```
+
 ### Minimum Supported Rust Version (MSRV)
 The cookie-monster crate has rust version 1.85 as MSRV.
 

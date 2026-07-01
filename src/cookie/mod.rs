@@ -9,6 +9,7 @@ mod domain;
 pub(crate) mod expires;
 mod parse;
 mod path;
+pub(crate) mod prefix;
 pub(crate) mod same_site;
 mod serialize;
 
@@ -17,6 +18,7 @@ mod encoding;
 
 pub use builder::CookieBuilder;
 use expires::Expires;
+use prefix::CookiePrefix;
 
 use crate::{SameSite, util::TinyStr};
 
@@ -36,6 +38,8 @@ pub struct Cookie {
     http_only: bool,
     partitioned: bool,
     same_site: Option<SameSite>,
+    // The recognized name prefix, detected from `name`. Kept in sync whenever the name changes.
+    prefix: Option<CookiePrefix>,
 }
 
 impl Cookie {
@@ -118,8 +122,8 @@ impl Cookie {
     ///     .http_only()
     ///     .build();
     ///
-    /// assert!(cookie.secure());
-    /// assert!(cookie.http_only());
+    /// assert!(cookie.is_secure());
+    /// assert!(cookie.is_http_only());
     /// ```
     pub fn build<N, V>(name: N, value: V) -> CookieBuilder
     where
@@ -155,6 +159,9 @@ impl Cookie {
     }
 
     /// Set the cookie name.
+    ///
+    /// The name is treated literally: no `__Host-` / `__Secure-` prefix flavour is inferred
+    /// from it. Use [`Cookie::host`] / [`Cookie::secure`] to build a prefixed cookie.
     #[inline]
     pub fn set_name<N: Into<Cow<'static, str>>>(&mut self, name: N) {
         self.name = TinyStr::from(name)
@@ -257,7 +264,7 @@ impl Cookie {
 
     /// Returns if the Secure attribute is set.
     #[inline]
-    pub fn secure(&self) -> bool {
+    pub fn is_secure(&self) -> bool {
         self.secure
     }
 
@@ -269,7 +276,7 @@ impl Cookie {
 
     /// Returns if the HttpOnly attribute is set.
     #[inline]
-    pub fn http_only(&self) -> bool {
+    pub fn is_http_only(&self) -> bool {
         self.http_only
     }
 
@@ -281,7 +288,7 @@ impl Cookie {
 
     /// Returns if the Partitioned attribute is set.
     #[inline]
-    pub fn partitioned(&self) -> bool {
+    pub fn is_partitioned(&self) -> bool {
         self.partitioned
     }
 
@@ -320,11 +327,12 @@ impl Debug for Cookie {
             .field("max_age", &self.max_age())
             .field("domain", &self.domain())
             .field("path", &self.path())
-            .field("secure", &self.secure())
-            .field("http_only", &self.http_only())
-            .field("partitioned", &self.partitioned())
+            .field("secure", &self.is_secure())
+            .field("http_only", &self.is_http_only())
+            .field("partitioned", &self.is_partitioned())
             .field("expires", &self.expires)
             .field("same_site", &self.same_site)
+            .field("prefix", &self.prefix)
             .finish()
     }
 }
@@ -333,12 +341,13 @@ impl PartialEq<Cookie> for Cookie {
     fn eq(&self, other: &Cookie) -> bool {
         if self.name() != other.name()
             || self.value() != other.value()
-            || self.secure() != other.secure()
-            || self.http_only() != other.http_only()
-            || self.partitioned() != other.partitioned()
+            || self.is_secure() != other.is_secure()
+            || self.is_http_only() != other.is_http_only()
+            || self.is_partitioned() != other.is_partitioned()
             || self.max_age() != other.max_age()
             || self.same_site() != other.same_site()
             || self.expires != other.expires
+            || self.prefix != other.prefix
         {
             return false;
         }
