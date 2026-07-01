@@ -18,7 +18,7 @@ mod encoding;
 
 pub use builder::CookieBuilder;
 use expires::Expires;
-pub use prefix::CookiePrefix;
+use prefix::CookiePrefix;
 
 use crate::{SameSite, util::TinyStr};
 
@@ -61,9 +61,7 @@ impl Cookie {
         N: Into<Cow<'static, str>>,
         V: Into<Cow<'static, str>>,
     {
-        let mut cookie = Self::new_inner(TinyStr::from(name), TinyStr::from(value));
-        cookie.refresh_prefix();
-        cookie
+        Self::new_inner(TinyStr::from(name), TinyStr::from(value))
     }
 
     /// Creates a cookie that can be used to remove the cookie from the user-agent. This sets the
@@ -162,26 +160,11 @@ impl Cookie {
 
     /// Set the cookie name.
     ///
-    /// This also updates the stored [prefix](Self::prefix) flavour to match the new name.
+    /// The name is treated literally: no `__Host-` / `__Secure-` prefix flavour is inferred
+    /// from it. Use [`Cookie::host`] / [`Cookie::secure`] to build a prefixed cookie.
     #[inline]
     pub fn set_name<N: Into<Cow<'static, str>>>(&mut self, name: N) {
-        self.name = TinyStr::from(name);
-        self.refresh_prefix();
-    }
-
-    /// Returns the recognized name prefix of the cookie, if any.
-    ///
-    /// The prefix is detected from the cookie name (case-sensitively) when the cookie is
-    /// created, parsed or renamed. See [`Cookie::host`] and [`Cookie::secure`].
-    #[inline]
-    pub fn prefix(&self) -> Option<CookiePrefix> {
-        self.prefix
-    }
-
-    /// Recomputes the stored prefix flavour from the current name.
-    #[inline]
-    pub(crate) fn refresh_prefix(&mut self) {
-        self.prefix = prefix::detect(self.name());
+        self.name = TinyStr::from(name)
     }
 
     /// Get the cookie value. This does not trim `"` characters.
@@ -364,6 +347,7 @@ impl PartialEq<Cookie> for Cookie {
             || self.max_age() != other.max_age()
             || self.same_site() != other.same_site()
             || self.expires != other.expires
+            || self.prefix != other.prefix
         {
             return false;
         }

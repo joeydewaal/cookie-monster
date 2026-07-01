@@ -55,6 +55,13 @@ impl CookieBuilder {
         self.0.set_name(name);
     }
 
+    /// Stores the cookie name prefix flavour. Used by [`Cookie::host`] / [`Cookie::secure`].
+    #[inline]
+    pub(crate) fn with_prefix(mut self, prefix: super::prefix::CookiePrefix) -> Self {
+        self.0.prefix = Some(prefix);
+        self
+    }
+
     /// Sets the value of the cookie.
     #[inline]
     pub fn value<V: Into<Cow<'static, str>>>(mut self, value: V) -> Self {

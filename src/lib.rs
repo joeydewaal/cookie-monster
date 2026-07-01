@@ -7,9 +7,9 @@
 //! # Prefix cookies
 //! [`Cookie::host`] and [`Cookie::secure`] build cookies that use the `__Host-` and `__Secure-`
 //! name prefixes ([RFC 6265bis §4.1.3](https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis#section-4.1.3)).
-//! They prepend the prefix and set the attributes the prefix requires as defaults; you remain
-//! free to override them. The detected prefix flavour is stored on the cookie (both when it is
-//! built and when it is parsed) and can be read with [`Cookie::prefix`].
+//! They set the attributes the prefix requires as defaults (which you may override) and apply
+//! the prefix to the name on serialization. Parsing strips a recognized prefix from the name, so
+//! a prefixed cookie is looked up in a [`CookieJar`] by its logical (unprefixed) name.
 //!
 //! ```rust
 //! use cookie_monster::Cookie;
@@ -108,7 +108,7 @@ mod axum;
 #[cfg(feature = "http")]
 mod http;
 
-pub use cookie::{Cookie, CookieBuilder, CookiePrefix, expires::Expires, same_site::SameSite};
+pub use cookie::{Cookie, CookieBuilder, expires::Expires, same_site::SameSite};
 pub use error::Error;
 pub(crate) type Result<T, E = Error> = ::std::result::Result<T, E>;
 pub use jar::CookieJar;

@@ -1,9 +1,6 @@
 use std::{borrow::Borrow, collections::HashSet, fmt::Debug, hash::Hash};
 
-use crate::{
-    Cookie,
-    cookie::prefix::{HOST_PREFIX, SECURE_PREFIX},
-};
+use crate::Cookie;
 
 /// A generic `CookieJar` for cookie management. Can be used to read update or delete cookies from
 /// a user session.
@@ -104,9 +101,11 @@ impl CookieJar {
     /// occurrence wins. This matches the `cookie` crate, `axum-extra`, Python's
     /// `SimpleCookie` and ASP.NET Core.
     ///
-    /// Duplicate-name resolution is **not** a security boundary. To defend
-    /// against cookie shadowing/tossing, use `__Host-`/`__Secure-` name prefixes
-    /// and/or reject requests that carry duplicate cookie names.
+    /// Duplicate-name resolution is **not** a security boundary. Note that the
+    /// `__Host-` / `__Secure-` prefix is stripped from the name when parsing, so a
+    /// prefixed cookie and a plain cookie of the same logical name collide here and the
+    /// last one wins. If you rely on a prefix as a trust signal, reject requests that
+    /// carry duplicate cookie names.
     ///
     /// ```rust
     /// use cookie_monster::CookieJar;
@@ -151,25 +150,13 @@ impl CookieJar {
 
     /// Get a cookie by name. Gives back either an __original__ or newly added cookie.
     ///
-    /// `name` may be given without the `__Host-` / `__Secure-` prefix: a prefixed cookie of
-    /// the same logical name is preferred over a non-prefixed one (`__Host-` over `__Secure-`
-    /// over no prefix). This means a plain `id` cookie can never shadow a `__Host-id` cookie,
-    /// and a cookie set with [`Cookie::host`] / [`Cookie::secure`] can be read back by its
-    /// unprefixed name. The full prefixed name resolves as well.
+    /// Parsing strips the `__Host-` / `__Secure-` prefix from the cookie name, so a cookie
+    /// received (or built) with a prefix is looked up by its logical (unprefixed) name.
     pub fn get(&self, name: &str) -> Option<&Cookie> {
-        self.resolve(name).and_then(|c| match c {
+        self.cookies.get(name).and_then(|c| match c {
             HashCookie::New(c) | HashCookie::Original(c) => Some(c),
             HashCookie::Removal(_) => None,
         })
-    }
-
-    /// Resolves a (possibly unprefixed) name to a stored cookie, preferring the `__Host-`
-    /// then `__Secure-` prefixed variant before falling back to an exact match.
-    fn resolve(&self, name: &str) -> Option<&HashCookie> {
-        self.cookies
-            .get(format!("{HOST_PREFIX}{name}").as_str())
-            .or_else(|| self.cookies.get(format!("{SECURE_PREFIX}{name}").as_str()))
-            .or_else(|| self.cookies.get(name))
     }
 
     /// Iterate over all changes. This returns all removed and newly created cookies.

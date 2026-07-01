@@ -66,13 +66,15 @@ impl Cookie {
         // Optionally decode the name and value.
         let (name, value) = callback(name, value)?;
 
+        // Strip a recognized `__Host-` / `__Secure-` prefix off the name and remember it.
+        let (prefix, name) = crate::cookie::prefix::split_prefix(name);
+
         let name = TinyStr::from_cow_ref(name, parts.ptr);
         let value = TinyStr::from_cow_ref(value, parts.ptr);
 
         let mut cookie = Cookie::new_inner(name, value);
+        cookie.prefix = prefix;
         cookie.raw_value = Some(string);
-        // The name may be indexed into `raw_value`, so detect the prefix only after it is set.
-        cookie.refresh_prefix();
         Ok(cookie)
     }
 }
